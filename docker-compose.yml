@@ -20,7 +20,7 @@ services:
       - ./nginx-conf:/etc/nginx/conf.d
       - certbot-etc:/etc/letsencrypt
       - certbot-var:/var/lib/letsencrypt
-      # - web-root:/var/www/html
+      - web-root:/var/www/html
     depends_on:
       - app
     networks:
@@ -32,7 +32,7 @@ services:
     volumes:
       - certbot-etc:/etc/letsencrypt
       - certbot-var:/var/lib/letsencrypt
-      # - web-root:/var/www/html
+      - web-root:/var/www/html
     depends_on:
       - webserver
     command: certonly --webroot --webroot-path=/var/www/html --email anton.kri97@gmail.com --agree-tos --no-eff-email --staging -d activix.space  -d www.activix.space
@@ -40,12 +40,12 @@ services:
 volumes:
   certbot-etc:
   certbot-var:
-  # web-root:
-  #   driver: local
-  #   driver_opts:
-  #     type: none
-  #     device: /root/app/views/
-  #     o: bind
+  web-root:
+    driver: local
+    driver_opts:
+      type: none
+      device: /root/family/
+      o: bind
 
 networks:
   app-network:
