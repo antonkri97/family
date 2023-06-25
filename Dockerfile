@@ -3,6 +3,7 @@ FROM node:16-bullseye-slim as base
 
 # set for base and all layer that inherit from it
 ENV NODE_ENV production
+ENV SESSION_SECRET b69f45386fd81a26a66b62770a243944
 
 # Install openssl for Prisma
 RUN apt-get update && apt-get install -y openssl sqlite3
@@ -43,6 +44,8 @@ FROM base
 ENV DATABASE_URL=file:/data/sqlite.db
 ENV PORT="8080"
 ENV NODE_ENV="production"
+
+EXPOSE 8080
 
 # add shortcut for connecting to database CLI
 RUN echo "#!/bin/sh\nset -x\nsqlite3 \$DATABASE_URL" > /usr/local/bin/database-cli && chmod +x /usr/local/bin/database-cli
