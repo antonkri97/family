@@ -35,7 +35,7 @@ services:
       - web-root:/var/www/html
     depends_on:
       - webserver
-    command: certonly --webroot --webroot-path=/var/www/html --email anton.kri97@gmail.com --agree-tos --no-eff-email --staging -d activix.space  -d www.activix.space
+    command: certonly --webroot --webroot-path=/var/www/html --email anton.kri97@gmail.com --agree-tos --no-eff-email --force-renewal -d activix.space  -d www.activix.space
 
 volumes:
   certbot-etc:
