@@ -8,43 +8,44 @@ import {
 } from "@remix-run/react";
 import invariant from "tiny-invariant";
 
-import { deleteNote, getNote } from "~/models/note.server";
+import { deleteNote, getPeople } from "~/models/people.server";
 import { requireUserId } from "~/session.server";
 
 export const loader = async ({ params, request }: LoaderArgs) => {
   const userId = await requireUserId(request);
-  invariant(params.noteId, "noteId not found");
+  invariant(params.peopleId, "peopleId not found");
 
-  const note = await getNote({ id: params.noteId, userId });
-  if (!note) {
+  const people = await getPeople({ id: params.peopleId, userId });
+  if (!people) {
     throw new Response("Not Found", { status: 404 });
   }
-  return json({ note });
+  return json({ people });
 };
 
 export const action = async ({ params, request }: ActionArgs) => {
   const userId = await requireUserId(request);
-  invariant(params.noteId, "noteId not found");
+  invariant(params.peopleId, "peopleId not found");
 
-  await deleteNote({ id: params.noteId, userId });
+  await deleteNote({ id: params.peopleId, userId });
 
-  return redirect("/notes");
+  return redirect("/people");
 };
 
-export default function NoteDetailsPage() {
+export default function PeopleDetailsPage() {
   const data = useLoaderData<typeof loader>();
 
   return (
     <div>
-      <h3 className="text-2xl font-bold">{data.note.title}</h3>
-      <p className="py-6">{data.note.body}</p>
+      <h3 className="text-2xl font-bold">{`${data.people.secondName} ${data.people.firstName} ${data.people.thirdName}`}</h3>
+      <p className="py-6">Родился: {data.people.birthday}</p>
+      <p className="py-6">Биография: {data.people.bio}</p>
       <hr className="my-4" />
       <Form method="post">
         <button
           type="submit"
           className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 focus:bg-blue-400"
         >
-          Delete
+          Удалить
         </button>
       </Form>
     </div>

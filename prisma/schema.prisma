@@ -15,7 +15,7 @@ model User {
   updatedAt DateTime @updatedAt
 
   password Password?
-  notes    Note[]
+  family    People[]
 }
 
 model Password {
@@ -25,10 +25,15 @@ model Password {
   userId String @unique
 }
 
-model Note {
+model People {
   id    String @id @default(cuid())
-  title String
-  body  String
+  firstName String
+  secondName String
+  thirdName String
+  birthday String
+  gender String
+
+  bio String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

@@ -62,7 +62,7 @@ export const meta: V2_MetaFunction = () => [{ title: "Login" }];
 
 export default function LoginPage() {
   const [searchParams] = useSearchParams();
-  const redirectTo = searchParams.get("redirectTo") || "/notes";
+  const redirectTo = searchParams.get("redirectTo") || "/people";
   const actionData = useActionData<typeof action>();
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
@@ -84,7 +84,7 @@ export default function LoginPage() {
               htmlFor="email"
               className="block text-sm font-medium text-gray-700"
             >
-              Email address
+              Почта
             </label>
             <div className="mt-1">
               <input
@@ -112,7 +112,7 @@ export default function LoginPage() {
               htmlFor="password"
               className="block text-sm font-medium text-gray-700"
             >
-              Password
+              Пароль
             </label>
             <div className="mt-1">
               <input
@@ -136,9 +136,9 @@ export default function LoginPage() {
           <input type="hidden" name="redirectTo" value={redirectTo} />
           <button
             type="submit"
-            className="w-full rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 focus:bg-blue-400"
+            className="w-full rounded bg-yellow-500 px-4 py-2 text-white hover:bg-yellow-600 focus:bg-yellow-400"
           >
-            Log in
+            Войти
           </button>
           <div className="flex items-center justify-between">
             <div className="flex items-center">
@@ -146,25 +146,25 @@ export default function LoginPage() {
                 id="remember"
                 name="remember"
                 type="checkbox"
-                className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                className="h-4 w-4 rounded border-gray-300 text-yellow-600 focus:ring-yellow-500"
               />
               <label
                 htmlFor="remember"
                 className="ml-2 block text-sm text-gray-900"
               >
-                Remember me
+                Запомнить
               </label>
             </div>
             <div className="text-center text-sm text-gray-500">
-              Don't have an account?{" "}
+              Нет аккаунта?{" "}
               <Link
-                className="text-blue-500 underline"
+                className="text-yellow-500 underline"
                 to={{
                   pathname: "/join",
                   search: searchParams.toString(),
                 }}
               >
-                Sign up
+                Регистрация
               </Link>
             </div>
           </div>
