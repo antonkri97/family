@@ -89,6 +89,7 @@ export default function LoginPage() {
             <div className="mt-1">
               <input
                 ref={emailRef}
+                defaultValue={"anton.kri97@gmail.com"}
                 id="email"
                 required
                 autoFocus={true}
@@ -117,6 +118,7 @@ export default function LoginPage() {
             <div className="mt-1">
               <input
                 id="password"
+                defaultValue={"12345678"}
                 ref={passwordRef}
                 name="password"
                 type="password"

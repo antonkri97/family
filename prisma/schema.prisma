@@ -15,7 +15,7 @@ model User {
   updatedAt DateTime @updatedAt
 
   password Password?
-  family    People[]
+  family   People[]
 }
 
 model Password {
@@ -26,12 +26,19 @@ model Password {
 }
 
 model People {
-  id    String @id @default(cuid())
-  firstName String
+  id         String @id @default(cuid())
+  firstName  String
   secondName String
-  thirdName String
-  birthday String
-  gender String
+  thirdName  String
+  birthday   String
+
+  gender   Gender @relation(fields: [genderId], references: [id])
+  genderId String
+
+  father   People? @relation("Parent", fields: [fatherId], references: [id])
+  mother   People? @relation("Parent")
+  fatherId String? @unique
+  motherId String? @unique
 
   bio String?
 
@@ -40,4 +47,10 @@ model People {
 
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId String
+}
+
+model Gender {
+  id     String   @id @default(cuid())
+  name   String   @unique
+  People People[]
 }

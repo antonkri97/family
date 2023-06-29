@@ -1,10 +1,23 @@
-import type { ActionArgs } from "@remix-run/node";
+import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { Form, useActionData } from "@remix-run/react";
+import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import { useEffect, useRef } from "react";
+import { getGenders } from "~/models/gender.server";
 
-import { createPeople } from "~/models/people.server";
+import {
+  createPeople,
+  getPeople,
+  getPeopleListItems,
+} from "~/models/people.server";
 import { requireUserId } from "~/session.server";
+
+export const loader = async ({ params, request }: LoaderArgs) => {
+  const userId = await requireUserId(request);
+  const genders = await getGenders();
+
+  const people = await getPeopleListItems({ userId });
+  return json({ people, genders });
+};
 
 export const action = async ({ request }: ActionArgs) => {
   const userId = await requireUserId(request);
@@ -14,7 +27,7 @@ export const action = async ({ request }: ActionArgs) => {
   const secondName = formData.get("secondName");
   const thirdName = formData.get("thirdName");
   const birthday = formData.get("birthday");
-  const gender = formData.get("gender");
+  const genderId = formData.get("gender");
   const bio = formData.get("bio");
 
   if (typeof firstName !== "string" || firstName.length === 0) {
@@ -77,7 +90,7 @@ export const action = async ({ request }: ActionArgs) => {
     );
   }
 
-  if (typeof gender !== "string" || gender.length === 0) {
+  if (typeof genderId !== "string" || genderId.length === 0) {
     return json(
       {
         errors: {
@@ -97,7 +110,7 @@ export const action = async ({ request }: ActionArgs) => {
     secondName,
     thirdName,
     birthday,
-    gender,
+    genderId,
     bio: bio?.length === 0 || typeof bio !== "string" ? "" : bio,
     userId,
   });
@@ -106,12 +119,14 @@ export const action = async ({ request }: ActionArgs) => {
 };
 
 export default function NewPeoplePage() {
+  const { people, genders } = useLoaderData<typeof loader>();
+
   const actionData = useActionData<typeof action>();
   const firstNameRef = useRef<HTMLInputElement>(null);
   const secondNameRef = useRef<HTMLInputElement>(null);
   const thirdNameRef = useRef<HTMLInputElement>(null);
   const birthDayRef = useRef<HTMLInputElement>(null);
-  const genderRef = useRef<HTMLInputElement>(null);
+  const genderRef = useRef<HTMLSelectElement>(null);
 
   useEffect(() => {
     if (actionData?.errors?.firstName) {
@@ -143,7 +158,6 @@ export default function NewPeoplePage() {
           <input
             ref={firstNameRef}
             name="firstName"
-            defaultValue={"Антон"}
             className="flex-1 rounded-md border-2 border-blue-500 px-3 text-lg leading-loose"
             aria-invalid={actionData?.errors?.firstName ? true : undefined}
             aria-errormessage={
@@ -163,7 +177,6 @@ export default function NewPeoplePage() {
           <input
             ref={secondNameRef}
             name="secondName"
-            defaultValue={"Кривохижин"}
             className="flex-1 rounded-md border-2 border-blue-500 px-3 text-lg leading-loose"
             aria-invalid={actionData?.errors?.secondName ? true : undefined}
             aria-errormessage={
@@ -184,7 +197,6 @@ export default function NewPeoplePage() {
           <input
             ref={thirdNameRef}
             name="thirdName"
-            defaultValue={"Владимирович"}
             className="flex-1 rounded-md border-2 border-blue-500 px-3 text-lg leading-loose"
             aria-invalid={actionData?.errors?.thirdName ? true : undefined}
             aria-errormessage={
@@ -205,7 +217,6 @@ export default function NewPeoplePage() {
           <input
             ref={birthDayRef}
             name="birthday"
-            defaultValue={"10.01.1997"}
             className="flex-1 rounded-md border-2 border-blue-500 px-3 text-lg leading-loose"
             aria-invalid={actionData?.errors?.birthday ? true : undefined}
             aria-errormessage={
@@ -223,16 +234,32 @@ export default function NewPeoplePage() {
       <div>
         <label className="flex w-full flex-col gap-1">
           <span>Пол: </span>
-          <input
+
+          <select
             ref={genderRef}
-            defaultValue={"Мужской"}
             name="gender"
             className="flex-1 rounded-md border-2 border-blue-500 px-3 text-lg leading-loose"
             aria-invalid={actionData?.errors?.gender ? true : undefined}
             aria-errormessage={
               actionData?.errors?.gender ? "title-error" : undefined
             }
-          />
+          >
+            {genders.map((gender) => (
+              <option key={gender.id} value={gender.id}>
+                {gender.name}
+              </option>
+            ))}
+          </select>
+
+          {/* <input
+            ref={genderRef}
+            name="gender"
+            className="flex-1 rounded-md border-2 border-blue-500 px-3 text-lg leading-loose"
+            aria-invalid={actionData?.errors?.gender ? true : undefined}
+            aria-errormessage={
+              actionData?.errors?.gender ? "title-error" : undefined
+            }
+          /> */}
         </label>
         {actionData?.errors?.gender ? (
           <div className="pt-1 text-red-700" id="title-error">
@@ -245,7 +272,6 @@ export default function NewPeoplePage() {
         <label className="flex w-full flex-col gap-1">
           <span>Биография: </span>
           <textarea
-            defaultValue={"пока ничего нет"}
             name="bio"
             rows={8}
             className="w-full flex-1 rounded-md border-2 border-blue-500 px-3 py-2 text-lg leading-6"

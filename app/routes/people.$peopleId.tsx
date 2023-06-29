@@ -32,13 +32,51 @@ export const action = async ({ params, request }: ActionArgs) => {
 };
 
 export default function PeopleDetailsPage() {
-  const data = useLoaderData<typeof loader>();
+  const { people } = useLoaderData<typeof loader>();
+
+  console.log(people);
+
+  function makeItemFactory<P extends typeof people>(people: P) {
+    return function <K extends keyof P>(label: string, key: K) {
+      return {
+        label,
+        value: people[key],
+      };
+    };
+  }
+
+  const makeItem = makeItemFactory(people);
+
+  const info = [
+    makeItem("День рождения", "birthday"),
+    {
+      label: "Пол",
+      value: people.gender.name,
+    },
+    makeItem("Отец", "fatherId"),
+    makeItem("Мать", "motherId"),
+    makeItem("Биография", "bio"),
+  ];
+
+  console.log(info);
 
   return (
     <div>
-      <h3 className="text-2xl font-bold">{`${data.people.secondName} ${data.people.firstName} ${data.people.thirdName}`}</h3>
-      <p className="py-6">Родился: {data.people.birthday}</p>
-      <p className="py-6">Биография: {data.people.bio}</p>
+      <h3 className="text-2xl font-bold">{`${people.secondName} ${people.firstName} ${people.thirdName}`}</h3>
+
+      <hr className="my-4" />
+
+      <ul className="flex flex-col gap-2">
+        {info.map((row) => (
+          <li
+            key={row.label}
+            className="rounded-md border-2 border-blue-500 pl-1"
+          >
+            <span className="font-bold">{row.label}</span>: {row.value}
+          </li>
+        ))}
+      </ul>
+
       <hr className="my-4" />
       <Form method="post">
         <button

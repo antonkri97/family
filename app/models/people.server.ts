@@ -10,6 +10,9 @@ export function getPeople({
 }) {
   return prisma.people.findFirst({
     where: { id, userId },
+    include: {
+      gender: true,
+    },
   });
 }
 
@@ -24,12 +27,12 @@ export function createPeople({
   secondName,
   thirdName,
   birthday,
-  gender,
+  genderId,
   bio,
   userId,
 }: Pick<
   People,
-  "firstName" | "secondName" | "thirdName" | "birthday" | "gender" | "bio"
+  "firstName" | "secondName" | "thirdName" | "birthday" | "genderId" | "bio"
 > & {
   userId: User["id"];
 }) {
@@ -39,11 +42,15 @@ export function createPeople({
       secondName,
       thirdName,
       birthday,
-      gender,
       bio,
       user: {
         connect: {
           id: userId,
+        },
+      },
+      gender: {
+        connect: {
+          id: genderId,
         },
       },
     },
