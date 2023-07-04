@@ -58,11 +58,9 @@ export default function PeopleDetailsPage() {
     makeItem("Биография", "bio"),
   ];
 
-  console.log(info);
-
   return (
     <div>
-      <h3 className="text-2xl font-bold">{`${people.secondName} ${people.firstName} ${people.thirdName}`}</h3>
+      <h3 className="text-2xl font-bold">{`${people.secondName.secondName} ${people.firstName} ${people.thirdName}`}</h3>
 
       <hr className="my-4" />
 

@@ -4,11 +4,8 @@ import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import { useEffect, useRef } from "react";
 import { getGenders } from "~/models/gender.server";
 
-import {
-  createPeople,
-  getPeople,
-  getPeopleListItems,
-} from "~/models/people.server";
+import { createPeople, getPeopleListItems } from "~/models/people.server";
+import { getSecondNames } from "~/models/second-name.server";
 import { requireUserId } from "~/session.server";
 
 export const loader = async ({ params, request }: LoaderArgs) => {
@@ -16,7 +13,10 @@ export const loader = async ({ params, request }: LoaderArgs) => {
   const genders = await getGenders();
 
   const people = await getPeopleListItems({ userId });
-  return json({ people, genders });
+
+  const secondNames = await getSecondNames();
+
+  return json({ people, genders, secondNames });
 };
 
 export const action = async ({ request }: ActionArgs) => {
@@ -24,7 +24,7 @@ export const action = async ({ request }: ActionArgs) => {
 
   const formData = await request.formData();
   const firstName = formData.get("firstName");
-  const secondName = formData.get("secondName");
+  const secondNameId = formData.get("secondName");
   const thirdName = formData.get("thirdName");
   const birthday = formData.get("birthday");
   const genderId = formData.get("gender");
@@ -45,7 +45,7 @@ export const action = async ({ request }: ActionArgs) => {
     );
   }
 
-  if (typeof secondName !== "string" || secondName.length === 0) {
+  if (typeof secondNameId !== "string" || secondNameId === null) {
     return json(
       {
         errors: {
@@ -107,7 +107,7 @@ export const action = async ({ request }: ActionArgs) => {
 
   const people = await createPeople({
     firstName,
-    secondName,
+    secondNameId,
     thirdName,
     birthday,
     genderId,
@@ -115,15 +115,15 @@ export const action = async ({ request }: ActionArgs) => {
     userId,
   });
 
-  return redirect(`/people/${people.id}`);
+  return redirect(`/main/people/${people.id}`);
 };
 
 export default function NewPeoplePage() {
-  const { people, genders } = useLoaderData<typeof loader>();
+  const { genders, secondNames } = useLoaderData<typeof loader>();
 
   const actionData = useActionData<typeof action>();
   const firstNameRef = useRef<HTMLInputElement>(null);
-  const secondNameRef = useRef<HTMLInputElement>(null);
+  const secondNameRef = useRef<HTMLSelectElement>(null);
   const thirdNameRef = useRef<HTMLInputElement>(null);
   const birthDayRef = useRef<HTMLInputElement>(null);
   const genderRef = useRef<HTMLSelectElement>(null);
@@ -171,10 +171,12 @@ export default function NewPeoplePage() {
           </div>
         ) : null}
       </div>
+
       <div>
         <label className="flex w-full flex-col gap-1">
           <span>Фамилия: </span>
-          <input
+
+          <select
             ref={secondNameRef}
             name="secondName"
             className="flex-1 rounded-md border-2 border-blue-500 px-3 text-lg leading-loose"
@@ -182,7 +184,13 @@ export default function NewPeoplePage() {
             aria-errormessage={
               actionData?.errors?.secondName ? "title-error" : undefined
             }
-          />
+          >
+            {secondNames.map((secondName) => (
+              <option key={secondName.id} value={secondName.id}>
+                {`${secondName.secondName}(а)`}
+              </option>
+            ))}
+          </select>
         </label>
         {actionData?.errors?.secondName ? (
           <div className="pt-1 text-red-700" id="title-error">
@@ -250,16 +258,6 @@ export default function NewPeoplePage() {
               </option>
             ))}
           </select>
-
-          {/* <input
-            ref={genderRef}
-            name="gender"
-            className="flex-1 rounded-md border-2 border-blue-500 px-3 text-lg leading-loose"
-            aria-invalid={actionData?.errors?.gender ? true : undefined}
-            aria-errormessage={
-              actionData?.errors?.gender ? "title-error" : undefined
-            }
-          /> */}
         </label>
         {actionData?.errors?.gender ? (
           <div className="pt-1 text-red-700" id="title-error">
