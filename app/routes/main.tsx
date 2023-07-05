@@ -8,8 +8,8 @@ import { useUser } from "~/utils";
 
 export const loader = async ({ request }: LoaderArgs) => {
   const userId = await requireUserId(request);
-  const noteListItems = await getPeopleListItems({ userId });
-  return json({ noteListItems });
+  const people = await getPeopleListItems({ userId });
+  return json({ people });
 };
 
 export default function PeoplePage() {
@@ -47,19 +47,19 @@ export default function PeoplePage() {
 
           <hr />
 
-          {data.noteListItems.length === 0 ? (
+          {data.people.length === 0 ? (
             <p className="p-4">Пока никого нет</p>
           ) : (
             <ol>
-              {data.noteListItems.map((note) => (
-                <li key={note.id}>
+              {data.people.map((people) => (
+                <li key={people.id}>
                   <NavLink
                     className={({ isActive }) =>
                       `block border-b p-4 text-xl ${isActive ? "bg-white" : ""}`
                     }
-                    to={note.id}
+                    to={`people/${people.id}`}
                   >
-                    😀 {note.firstName}
+                    😀 {people.firstName}
                   </NavLink>
                 </li>
               ))}
