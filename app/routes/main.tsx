@@ -8,7 +8,7 @@ import { useUser } from "~/utils";
 
 export const loader = async ({ request }: LoaderArgs) => {
   const userId = await requireUserId(request);
-  const people = await getPeopleListItems({ userId });
+  const people = await getPeopleListItems({ id: userId });
   return json({ people });
 };
 
@@ -35,14 +35,11 @@ export default function PeoplePage() {
 
       <main className="flex h-full bg-white">
         <div className="h-full w-80 border-r bg-gray-50">
-          <Link to="people/new" className="block p-4 text-xl text-blue-500">
-            + Новый человек
+          <Link to="people/list" className="block p-4 text-xl text-blue-500">
+            Люди
           </Link>
-          <Link
-            to="second-name/new"
-            className="block p-4 text-xl text-blue-500"
-          >
-            + Новая фамилия
+          <Link to="trees" className="block p-4 text-xl text-blue-500">
+            Деревья
           </Link>
 
           <hr />

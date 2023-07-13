@@ -1,22 +1,19 @@
 import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Form, useActionData, useLoaderData } from "@remix-run/react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { getGenders } from "~/models/gender.server";
 
 import { createPeople, getPeopleListItems } from "~/models/people.server";
-import { getSecondNames } from "~/models/second-name.server";
 import { requireUserId } from "~/session.server";
 
 export const loader = async ({ params, request }: LoaderArgs) => {
   const userId = await requireUserId(request);
   const genders = await getGenders();
 
-  const people = await getPeopleListItems({ userId });
+  const people = await getPeopleListItems({ id: userId });
 
-  const secondNames = await getSecondNames();
-
-  return json({ people, genders, secondNames });
+  return json({ people, genders });
 };
 
 export const action = async ({ request }: ActionArgs) => {
@@ -24,7 +21,7 @@ export const action = async ({ request }: ActionArgs) => {
 
   const formData = await request.formData();
   const firstName = formData.get("firstName");
-  const secondNameId = formData.get("secondName");
+  const secondName = formData.get("secondName");
   const thirdName = formData.get("thirdName");
   const birthday = formData.get("birthday");
   const genderId = formData.get("gender");
@@ -45,7 +42,7 @@ export const action = async ({ request }: ActionArgs) => {
     );
   }
 
-  if (typeof secondNameId !== "string" || secondNameId === null) {
+  if (typeof secondName !== "string" || secondName === null) {
     return json(
       {
         errors: {
@@ -107,7 +104,7 @@ export const action = async ({ request }: ActionArgs) => {
 
   const people = await createPeople({
     firstName,
-    secondNameId,
+    secondName,
     thirdName,
     birthday,
     genderId,
@@ -119,14 +116,28 @@ export const action = async ({ request }: ActionArgs) => {
 };
 
 export default function NewPeoplePage() {
-  const { genders, secondNames } = useLoaderData<typeof loader>();
+  const { genders, people } = useLoaderData<typeof loader>();
 
   const actionData = useActionData<typeof action>();
   const firstNameRef = useRef<HTMLInputElement>(null);
-  const secondNameRef = useRef<HTMLSelectElement>(null);
+  const secondNameRef = useRef<HTMLInputElement>(null);
   const thirdNameRef = useRef<HTMLInputElement>(null);
   const birthDayRef = useRef<HTMLInputElement>(null);
   const genderRef = useRef<HTMLSelectElement>(null);
+  const spousesRef = useRef<HTMLSelectElement>(null);
+
+  const [selectedGender, setSelectedGender] = useState(genders[0].id);
+
+  const [spouses, setSpouses] = useState(
+    people.filter(
+      ({ genderId }) => (genderRef.current?.value ?? genders[0].id) !== genderId
+    )
+  );
+
+  const onGenderChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSpouses(people.filter(({ genderId }) => genderId !== e.target.value));
+    setSelectedGender(e.target.value);
+  };
 
   useEffect(() => {
     if (actionData?.errors?.firstName) {
@@ -175,22 +186,15 @@ export default function NewPeoplePage() {
       <div>
         <label className="flex w-full flex-col gap-1">
           <span>Фамилия: </span>
-
-          <select
+          <input
             ref={secondNameRef}
             name="secondName"
             className="flex-1 rounded-md border-2 border-blue-500 px-3 text-lg leading-loose"
-            aria-invalid={actionData?.errors?.secondName ? true : undefined}
+            aria-invalid={actionData?.errors?.firstName ? true : undefined}
             aria-errormessage={
               actionData?.errors?.secondName ? "title-error" : undefined
             }
-          >
-            {secondNames.map((secondName) => (
-              <option key={secondName.id} value={secondName.id}>
-                {`${secondName.secondName}(а)`}
-              </option>
-            ))}
-          </select>
+          />
         </label>
         {actionData?.errors?.secondName ? (
           <div className="pt-1 text-red-700" id="title-error">
@@ -245,6 +249,7 @@ export default function NewPeoplePage() {
 
           <select
             ref={genderRef}
+            onChange={(e) => onGenderChange(e)}
             name="gender"
             className="flex-1 rounded-md border-2 border-blue-500 px-3 text-lg leading-loose"
             aria-invalid={actionData?.errors?.gender ? true : undefined}
@@ -255,6 +260,33 @@ export default function NewPeoplePage() {
             {genders.map((gender) => (
               <option key={gender.id} value={gender.id}>
                 {gender.name}
+              </option>
+            ))}
+          </select>
+        </label>
+        {actionData?.errors?.gender ? (
+          <div className="pt-1 text-red-700" id="title-error">
+            {actionData.errors.gender}
+          </div>
+        ) : null}
+      </div>
+
+      <div>
+        <label className="flex w-full flex-col gap-1">
+          <span>Супруг(а): </span>
+
+          <select
+            ref={spousesRef}
+            name="spouse"
+            className="flex-1 rounded-md border-2 border-blue-500 px-3 text-lg leading-loose"
+            aria-invalid={actionData?.errors?.gender ? true : undefined}
+            aria-errormessage={
+              actionData?.errors?.gender ? "title-error" : undefined
+            }
+          >
+            {spouses.map((spouse) => (
+              <option key={spouse.id} value={spouse.id}>
+                {`${spouse.secondName} ${spouse.firstName} ${spouse.thirdName}`}
               </option>
             ))}
           </select>

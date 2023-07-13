@@ -1,35 +1,35 @@
 import type { ActionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
-import { Form, useActionData } from "@remix-run/react";
+import { Form } from "@remix-run/react";
 import { useRef } from "react";
-import { createSecondName } from "~/models/second-name.server";
+import { createTree } from "~/models/tree.server";
 import { requireUserId } from "~/session.server";
 
 export const action = async ({ request }: ActionArgs) => {
   const userId = await requireUserId(request);
   const formData = await request.formData();
-  const secondName = formData.get("secondName");
 
-  if (typeof secondName !== "string" || secondName === "") {
+  const name = formData.get("name");
+
+  if (typeof name !== "string" || name === "") {
     return json(
       {
         errors: {
-          secondName: "Введите фамилию",
+          secondName: "Введите название дерева",
+          feminine: null,
         },
       },
       { status: 400 }
     );
   }
 
-  const res = await createSecondName({ secondName, id: userId });
+  const id = await createTree({ name, userId });
 
-  return redirect(`/main/second-name/${res.id}`);
+  return redirect(`/main/tree/${id}`);
 };
 
-export default function NewSecondNamePage() {
-  const actionData = useActionData<typeof action>();
-
-  const secondNameRef = useRef<HTMLInputElement>(null);
+export default function NewTreePage() {
+  const nameRef = useRef<HTMLInputElement>(null);
 
   return (
     <Form
@@ -43,22 +43,13 @@ export default function NewSecondNamePage() {
     >
       <div>
         <label className="flex w-full flex-col gap-1">
-          <span>Фамилия: </span>
+          <span>Название дерева:</span>
           <input
-            ref={secondNameRef}
-            name="secondName"
+            ref={nameRef}
+            name="name"
             className="flex-1 rounded-md border-2 border-blue-500 px-3 text-lg leading-loose"
-            aria-invalid={actionData?.errors?.secondName ? true : undefined}
-            aria-errormessage={
-              actionData?.errors?.secondName ? "title-error" : undefined
-            }
           />
         </label>
-        {actionData?.errors?.secondName ? (
-          <div className="pt-1 text-red-700" id="title-error">
-            {actionData.errors.secondName}
-          </div>
-        ) : null}
       </div>
 
       <div className="text-right">

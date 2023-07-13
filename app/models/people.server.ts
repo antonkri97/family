@@ -1,4 +1,4 @@
-import type { User, People } from "@prisma/client";
+import type { People, User } from "@prisma/client";
 
 import { prisma } from "~/db.server";
 
@@ -12,20 +12,29 @@ export function getPeople({
     where: { id, userId },
     include: {
       gender: true,
-      secondName: true,
     },
   });
 }
 
-export function getPeopleListItems({ userId }: { userId: User["id"] }) {
+export async function getPossibleSpouses(userId: string, genderId: string) {
+  const gender = await prisma.gender.findFirst({
+    where: { NOT: { id: { equals: genderId } } },
+  });
+
   return prisma.people.findMany({
-    where: { userId },
+    where: { userId, genderId: gender?.id },
+  });
+}
+
+export function getPeopleListItems({ id }: Pick<User, "id">) {
+  return prisma.people.findMany({
+    where: { userId: id },
   });
 }
 
 export function createPeople({
   firstName,
-  secondNameId,
+  secondName,
   thirdName,
   birthday,
   genderId,
@@ -33,18 +42,14 @@ export function createPeople({
   userId,
 }: Pick<
   People,
-  "firstName" | "secondNameId" | "thirdName" | "birthday" | "genderId" | "bio"
+  "firstName" | "secondName" | "thirdName" | "birthday" | "genderId" | "bio"
 > & {
   userId: User["id"];
 }) {
   return prisma.people.create({
     data: {
       firstName,
-      secondName: {
-        connect: {
-          id: secondNameId,
-        },
-      },
+      secondName,
       thirdName,
       birthday,
       bio,
@@ -62,7 +67,7 @@ export function createPeople({
   });
 }
 
-export function deleteNote({
+export function deletePeople({
   id,
   userId,
 }: Pick<People, "id"> & { userId: User["id"] }) {

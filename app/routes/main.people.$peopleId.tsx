@@ -8,7 +8,7 @@ import {
 } from "@remix-run/react";
 import invariant from "tiny-invariant";
 
-import { deleteNote, getPeople } from "~/models/people.server";
+import { deletePeople, getPeople } from "~/models/people.server";
 import { requireUserId } from "~/session.server";
 
 export const loader = async ({ params, request }: LoaderArgs) => {
@@ -26,7 +26,7 @@ export const action = async ({ params, request }: ActionArgs) => {
   const userId = await requireUserId(request);
   invariant(params.peopleId, "peopleId not found");
 
-  await deleteNote({ id: params.peopleId, userId });
+  await deletePeople({ id: params.peopleId, userId });
 
   return redirect("/people");
 };
@@ -60,7 +60,7 @@ export default function PeopleDetailsPage() {
 
   return (
     <div>
-      <h3 className="text-2xl font-bold">{`${people.secondName.secondName} ${people.firstName} ${people.thirdName}`}</h3>
+      <h3 className="text-2xl font-bold">{`${people.secondName} ${people.firstName} ${people.thirdName}`}</h3>
 
       <hr className="my-4" />
 
