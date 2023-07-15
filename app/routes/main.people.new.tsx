@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { getGenders } from "~/models/gender.server";
 
 import { createPeople, getPeopleListItems } from "~/models/people.server";
+import { Input } from "~/modules/shared";
 import { requireUserId } from "~/session.server";
 
 export const loader = async ({ params, request }: LoaderArgs) => {
@@ -163,85 +164,49 @@ export default function NewPeoplePage() {
         width: "100%",
       }}
     >
-      <div>
-        <label className="flex w-full flex-col gap-1">
-          <span>Имя: </span>
-          <input
-            ref={firstNameRef}
-            name="firstName"
-            className="flex-1 rounded-md border-2 border-blue-500 px-3 text-lg leading-loose"
-            aria-invalid={actionData?.errors?.firstName ? true : undefined}
-            aria-errormessage={
-              actionData?.errors?.firstName ? "title-error" : undefined
-            }
-          />
-        </label>
-        {actionData?.errors?.firstName ? (
-          <div className="pt-1 text-red-700" id="title-error">
-            {actionData.errors.firstName}
-          </div>
-        ) : null}
-      </div>
+      <Input
+        label="Имя: "
+        name="firstName"
+        refProp={firstNameRef}
+        invalid={actionData?.errors?.firstName ? true : undefined}
+        ariaErrorMessage={
+          actionData?.errors?.firstName ? "title-error" : undefined
+        }
+        errorMessage={actionData?.errors?.firstName}
+      />
 
-      <div>
-        <label className="flex w-full flex-col gap-1">
-          <span>Фамилия: </span>
-          <input
-            ref={secondNameRef}
-            name="secondName"
-            className="flex-1 rounded-md border-2 border-blue-500 px-3 text-lg leading-loose"
-            aria-invalid={actionData?.errors?.firstName ? true : undefined}
-            aria-errormessage={
-              actionData?.errors?.secondName ? "title-error" : undefined
-            }
-          />
-        </label>
-        {actionData?.errors?.secondName ? (
-          <div className="pt-1 text-red-700" id="title-error">
-            {actionData.errors.secondName}
-          </div>
-        ) : null}
-      </div>
+      <Input
+        label="Фамилия: "
+        name="secondName"
+        refProp={secondNameRef}
+        invalid={actionData?.errors?.secondName ? true : undefined}
+        ariaErrorMessage={
+          actionData?.errors?.secondName ? "title-error" : undefined
+        }
+        errorMessage={actionData?.errors?.secondName}
+      />
 
-      <div>
-        <label className="flex w-full flex-col gap-1">
-          <span>Отчество: </span>
-          <input
-            ref={thirdNameRef}
-            name="thirdName"
-            className="flex-1 rounded-md border-2 border-blue-500 px-3 text-lg leading-loose"
-            aria-invalid={actionData?.errors?.thirdName ? true : undefined}
-            aria-errormessage={
-              actionData?.errors?.thirdName ? "title-error" : undefined
-            }
-          />
-        </label>
-        {actionData?.errors?.thirdName ? (
-          <div className="pt-1 text-red-700" id="title-error">
-            {actionData.errors.thirdName}
-          </div>
-        ) : null}
-      </div>
+      <Input
+        label="Отчество: "
+        name="thirdName"
+        refProp={thirdNameRef}
+        invalid={actionData?.errors?.thirdName ? true : undefined}
+        ariaErrorMessage={
+          actionData?.errors?.thirdName ? "title-error" : undefined
+        }
+        errorMessage={actionData?.errors?.thirdName}
+      />
 
-      <div>
-        <label className="flex w-full flex-col gap-1">
-          <span>Год рождения: </span>
-          <input
-            ref={birthDayRef}
-            name="birthday"
-            className="flex-1 rounded-md border-2 border-blue-500 px-3 text-lg leading-loose"
-            aria-invalid={actionData?.errors?.birthday ? true : undefined}
-            aria-errormessage={
-              actionData?.errors?.birthday ? "title-error" : undefined
-            }
-          />
-        </label>
-        {actionData?.errors?.birthday ? (
-          <div className="pt-1 text-red-700" id="title-error">
-            {actionData.errors.birthday}
-          </div>
-        ) : null}
-      </div>
+      <Input
+        label="Год рождения: "
+        name="birthday"
+        refProp={thirdNameRef}
+        invalid={actionData?.errors?.birthday ? true : undefined}
+        ariaErrorMessage={
+          actionData?.errors?.birthday ? "title-error" : undefined
+        }
+        errorMessage={actionData?.errors?.birthday}
+      />
 
       <div>
         <label className="flex w-full flex-col gap-1">
