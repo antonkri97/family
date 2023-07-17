@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { getGenders } from "~/models/gender.server";
 
 import { createPeople, getPeopleListItems } from "~/models/people.server";
-import { Input } from "~/modules/shared";
+import { Input, Select } from "~/modules/shared";
 import { requireUserId } from "~/session.server";
 
 export const loader = async ({ params, request }: LoaderArgs) => {
@@ -208,60 +208,40 @@ export default function NewPeoplePage() {
         errorMessage={actionData?.errors?.birthday}
       />
 
-      <div>
-        <label className="flex w-full flex-col gap-1">
-          <span>Пол: </span>
+      <Select
+        label="Пол: "
+        selectRef={genderRef}
+        onChange={(e) => onGenderChange(e)}
+        name="gender"
+        invalid={actionData?.errors?.gender ? true : undefined}
+        ariaErrorMessage={
+          actionData?.errors?.gender ? "title-error" : undefined
+        }
+        errorMessage={actionData?.errors?.gender ? "title-error" : undefined}
+      >
+        {genders.map((gender) => (
+          <option key={gender.id} value={gender.id}>
+            {gender.name}
+          </option>
+        ))}
+      </Select>
 
-          <select
-            ref={genderRef}
-            onChange={(e) => onGenderChange(e)}
-            name="gender"
-            className="flex-1 rounded-md border-2 border-blue-500 px-3 text-lg leading-loose"
-            aria-invalid={actionData?.errors?.gender ? true : undefined}
-            aria-errormessage={
-              actionData?.errors?.gender ? "title-error" : undefined
-            }
-          >
-            {genders.map((gender) => (
-              <option key={gender.id} value={gender.id}>
-                {gender.name}
-              </option>
-            ))}
-          </select>
-        </label>
-        {actionData?.errors?.gender ? (
-          <div className="pt-1 text-red-700" id="title-error">
-            {actionData.errors.gender}
-          </div>
-        ) : null}
-      </div>
-
-      <div>
-        <label className="flex w-full flex-col gap-1">
-          <span>Супруг(а): </span>
-
-          <select
-            ref={spousesRef}
-            name="spouse"
-            className="flex-1 rounded-md border-2 border-blue-500 px-3 text-lg leading-loose"
-            aria-invalid={actionData?.errors?.gender ? true : undefined}
-            aria-errormessage={
-              actionData?.errors?.gender ? "title-error" : undefined
-            }
-          >
-            {spouses.map((spouse) => (
-              <option key={spouse.id} value={spouse.id}>
-                {`${spouse.secondName} ${spouse.firstName} ${spouse.thirdName}`}
-              </option>
-            ))}
-          </select>
-        </label>
-        {actionData?.errors?.gender ? (
-          <div className="pt-1 text-red-700" id="title-error">
-            {actionData.errors.gender}
-          </div>
-        ) : null}
-      </div>
+      <Select
+        label="Супруг(а): "
+        selectRef={spousesRef}
+        name="spouse"
+        invalid={actionData?.errors?.gender ? true : undefined}
+        ariaErrorMessage={
+          actionData?.errors?.gender ? "title-error" : undefined
+        }
+        errorMessage={actionData?.errors?.gender}
+      >
+        {spouses.map((spouse) => (
+          <option key={spouse.id} value={spouse.id}>
+            {`${spouse.secondName} ${spouse.firstName} ${spouse.thirdName}`}
+          </option>
+        ))}
+      </Select>
 
       <div>
         <label className="flex w-full flex-col gap-1">
