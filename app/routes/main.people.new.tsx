@@ -1,17 +1,18 @@
+import { Gender } from "@prisma/client";
 import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import { useEffect, useRef, useState } from "react";
+import { nullable, object, optional, string, z } from "zod";
 import { getGenders } from "~/models/gender.server";
 
 import { createPeople, getPeopleListItems } from "~/models/people.server";
-import { Input, Select } from "~/modules/shared";
+import { Button, Input, Select, Textarea } from "~/modules/shared";
 import { requireUserId } from "~/session.server";
 
 export const loader = async ({ params, request }: LoaderArgs) => {
   const userId = await requireUserId(request);
-  const genders = await getGenders();
-
+  const genders = getGenders();
   const people = await getPeopleListItems({ id: userId });
 
   return json({ people, genders });
@@ -20,100 +21,56 @@ export const loader = async ({ params, request }: LoaderArgs) => {
 export const action = async ({ request }: ActionArgs) => {
   const userId = await requireUserId(request);
 
-  const formData = await request.formData();
-  const firstName = formData.get("firstName");
-  const secondName = formData.get("secondName");
-  const thirdName = formData.get("thirdName");
-  const birthday = formData.get("birthday");
-  const genderId = formData.get("gender");
-  const bio = formData.get("bio");
-
-  if (typeof firstName !== "string" || firstName.length === 0) {
-    return json(
-      {
-        errors: {
-          firstName: "Заполните имя",
-          secondName: null,
-          thirdName: null,
-          birthday: null,
-          gender: null,
-        },
-      },
-      { status: 400 }
-    );
-  }
-
-  if (typeof secondName !== "string" || secondName === null) {
-    return json(
-      {
-        errors: {
-          firstName: null,
-          secondName: "Заполните фамилию",
-          thirdName: null,
-          birthday: null,
-          gender: null,
-        },
-      },
-      { status: 400 }
-    );
-  }
-
-  if (typeof thirdName !== "string" || thirdName.length === 0) {
-    return json(
-      {
-        errors: {
-          firstName: null,
-          secondName: null,
-          thirdName: "Заполните отчество",
-          birthday: null,
-          gender: null,
-        },
-      },
-      { status: 400 }
-    );
-  }
-
-  if (typeof birthday !== "string" || birthday.length === 0) {
-    return json(
-      {
-        errors: {
-          firstName: null,
-          secondName: null,
-          thirdName: null,
-          birthday: "Введите дату рождения",
-          gender: null,
-        },
-      },
-      { status: 400 }
-    );
-  }
-
-  if (typeof genderId !== "string" || genderId.length === 0) {
-    return json(
-      {
-        errors: {
-          firstName: null,
-          secondName: null,
-          thirdName: null,
-          birthday: null,
-          gender: "Выберите пол",
-        },
-      },
-      { status: 400 }
-    );
-  }
-
-  const people = await createPeople({
-    firstName,
-    secondName,
-    thirdName,
-    birthday,
-    genderId,
-    bio: bio?.length === 0 || typeof bio !== "string" ? "" : bio,
-    userId,
+  const People = object({
+    firstName: string(),
+    secondName: string(),
+    thirdName: string(),
+    birthday: string(),
+    gender: z.enum([Gender.MALE, Gender.FEMALE]),
+    spouse: nullable(string()),
+    bio: nullable(string()),
   });
 
-  return redirect(`/main/people/${people.id}`);
+  const formData = await request.formData();
+
+  const parsed = People.safeParse({
+    firstName: formData.get("firstName"),
+    secondName: formData.get("secondName"),
+    thirdName: formData.get("thirdName"),
+    birthday: formData.get("birthday"),
+    gender: formData.get("gender"),
+    spouse: formData.get("spouse"),
+    bio: formData.get("bio"),
+  });
+
+  if (parsed.success) {
+    const people = await createPeople({
+      firstName: parsed.data.firstName,
+      secondName: parsed.data.secondName,
+      thirdName: parsed.data.thirdName,
+      birthday: parsed.data.birthday,
+      gender: parsed.data.gender,
+      spouseId: parsed.data.spouse,
+      bio: parsed.data.bio ?? "",
+      userId,
+    });
+
+    return redirect(`/main/people/${people.id}`);
+  }
+
+  console.log(parsed.error);
+
+  return json(
+    {
+      errors: {
+        firstName: "",
+        secondName: "",
+        thirdName: "",
+        birthday: "",
+      },
+    },
+    { status: 400 }
+  );
 };
 
 export default function NewPeoplePage() {
@@ -127,17 +84,15 @@ export default function NewPeoplePage() {
   const genderRef = useRef<HTMLSelectElement>(null);
   const spousesRef = useRef<HTMLSelectElement>(null);
 
-  const [selectedGender, setSelectedGender] = useState(genders[0].id);
+  const [selectedGender, setSelectedGender] = useState(genders[0].value);
 
   const [spouses, setSpouses] = useState(
-    people.filter(
-      ({ genderId }) => (genderRef.current?.value ?? genders[0].id) !== genderId
-    )
+    people.filter(({ gender }) => selectedGender !== gender)
   );
 
   const onGenderChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSpouses(people.filter(({ genderId }) => genderId !== e.target.value));
-    setSelectedGender(e.target.value);
+    setSpouses(people.filter(({ gender }) => gender !== e.target.value));
+    setSelectedGender(e.target.value as Gender);
   };
 
   useEffect(() => {
@@ -149,8 +104,6 @@ export default function NewPeoplePage() {
       thirdNameRef.current?.focus();
     } else if (actionData?.errors?.birthday) {
       birthDayRef.current?.focus();
-    } else if (actionData?.errors?.gender) {
-      genderRef.current?.focus();
     }
   }, [actionData]);
 
@@ -213,29 +166,15 @@ export default function NewPeoplePage() {
         selectRef={genderRef}
         onChange={(e) => onGenderChange(e)}
         name="gender"
-        invalid={actionData?.errors?.gender ? true : undefined}
-        ariaErrorMessage={
-          actionData?.errors?.gender ? "title-error" : undefined
-        }
-        errorMessage={actionData?.errors?.gender ? "title-error" : undefined}
       >
         {genders.map((gender) => (
-          <option key={gender.id} value={gender.id}>
-            {gender.name}
+          <option key={gender.value} value={gender.value}>
+            {gender.label}
           </option>
         ))}
       </Select>
 
-      <Select
-        label="Супруг(а): "
-        selectRef={spousesRef}
-        name="spouse"
-        invalid={actionData?.errors?.gender ? true : undefined}
-        ariaErrorMessage={
-          actionData?.errors?.gender ? "title-error" : undefined
-        }
-        errorMessage={actionData?.errors?.gender}
-      >
+      <Select label="Супруг(а): " selectRef={spousesRef} name="spouse">
         {spouses.map((spouse) => (
           <option key={spouse.id} value={spouse.id}>
             {`${spouse.secondName} ${spouse.firstName} ${spouse.thirdName}`}
@@ -243,24 +182,10 @@ export default function NewPeoplePage() {
         ))}
       </Select>
 
-      <div>
-        <label className="flex w-full flex-col gap-1">
-          <span>Биография: </span>
-          <textarea
-            name="bio"
-            rows={8}
-            className="w-full flex-1 rounded-md border-2 border-blue-500 px-3 py-2 text-lg leading-6"
-          />
-        </label>
-      </div>
+      <Textarea label="Биография: " name="bio" />
 
       <div className="text-right">
-        <button
-          type="submit"
-          className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 focus:bg-blue-400"
-        >
-          Добавить
-        </button>
+        <Button>Добавить</Button>
       </div>
     </Form>
   );

@@ -13,9 +13,9 @@ export const Select = ({
   selectRef: React.RefObject<HTMLSelectElement>;
   onChange?: (event: React.ChangeEvent<HTMLSelectElement>) => void;
   name: string;
-  invalid: true | undefined;
-  ariaErrorMessage: string | undefined;
-  errorMessage: string | undefined | null;
+  invalid?: true | undefined;
+  ariaErrorMessage?: string | undefined;
+  errorMessage?: string | undefined | null;
   label: string;
 }>) => (
   <div>
