@@ -24,9 +24,6 @@ async function seed() {
     },
   });
 
-  await prisma.gender.create({ data: { name: "Мужчина" } });
-  await prisma.gender.create({ data: { name: "Женщина" } });
-
   console.log(`Database has been seeded. 🌱`);
 }
 

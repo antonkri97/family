@@ -38,6 +38,9 @@ export default function PeoplePage() {
           <Link to="people/list" className="block p-4 text-xl text-blue-500">
             Люди
           </Link>
+          <Link to="people/new" className="block p-4 text-xl text-blue-500">
+            Добавить человека
+          </Link>
           <Link to="trees" className="block p-4 text-xl text-blue-500">
             Деревья
           </Link>

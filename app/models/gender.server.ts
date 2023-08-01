@@ -1,5 +1,14 @@
-import { prisma } from "~/db.server";
+import { Gender } from "@prisma/client";
 
 export function getGenders() {
-  return prisma.gender.findMany();
+  return [
+    {
+      value: Gender.MALE,
+      label: "Мужской",
+    },
+    {
+      value: Gender.FEMALE,
+      label: "Женский",
+    },
+  ];
 }

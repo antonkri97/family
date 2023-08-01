@@ -1,3 +1,4 @@
+import { People } from "@prisma/client";
 import { useMatches } from "@remix-run/react";
 import { useMemo } from "react";
 
@@ -68,4 +69,19 @@ export function useUser(): User {
 
 export function validateEmail(email: unknown): email is string {
   return typeof email === "string" && email.length > 3 && email.includes("@");
+}
+
+export function formatName(
+  people:
+    | Partial<Pick<People, "firstName" | "secondName" | "thirdName">>
+    | null
+    | undefined
+): string {
+  const { secondName, firstName, thirdName } = people ?? {
+    firstName: "",
+    secondName: "",
+    thirdName: "",
+  };
+
+  return `${secondName} ${firstName} ${thirdName}`;
 }

@@ -2,6 +2,9 @@ version: '3'
 
 services:
   app:
+    profiles:
+      - prod
+      - local
     build:
       context: .
       dockerfile: Dockerfile
@@ -10,7 +13,12 @@ services:
     restart: unless-stopped
     networks:
       - app-network
+      - postgres
+    depends_on:
+      - postgres
   webserver:
+    profiles:
+      - prod
     image: nginx:mainline-alpine
     container_name: webserver
     restart: unless-stopped
@@ -27,8 +35,46 @@ services:
       - app
     networks:
       - app-network
+  postgres:
+    profiles:
+      - prod
+      - local
+      - db
+    container_name: postgres
+    image: postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+      PGDATA: /data/postgres
+    volumes:
+       - postgres:/data/postgres
+    ports:
+      - "5432:5432"
+    networks:
+      - postgres
+    restart: unless-stopped
+  
+  pgadmin:
+    profiles:
+      - prod
+      - local
+      - db
+    container_name: pgadmin_container
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin4@pgadmin.org}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    volumes:
+       - pgadmin:/var/lib/pgadmin
+    ports:
+      - "${PGADMIN_PORT:-5050}:80"
+    networks:
+      - postgres
 
   certbot:
+    profiles:
+      - prod
     image: certbot/certbot
     container_name: certbot
     volumes:
@@ -54,7 +100,11 @@ volumes:
       type: none
       device: /root/family/dhparam/
       o: bind
+  postgres:
+  pgadmin:
 
 networks:
   app-network:
+    driver: bridge
+  postgres:
     driver: bridge

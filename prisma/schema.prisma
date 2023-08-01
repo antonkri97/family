@@ -1,5 +1,5 @@
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -46,8 +46,7 @@ model People {
   thirdName String
   birthday  String
 
-  gender   Gender @relation(fields: [genderId], references: [id])
-  genderId String
+  gender Gender
 
   father   People? @relation("Parent", fields: [fatherId], references: [id])
   mother   People? @relation("Parent")
@@ -72,8 +71,7 @@ model People {
   updatedAt DateTime @updatedAt
 }
 
-model Gender {
-  id     String   @id @default(cuid())
-  name   String   @unique
-  people People[]
+enum Gender {
+  MALE
+  FEMALE
 }

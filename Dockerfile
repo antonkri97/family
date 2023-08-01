@@ -41,7 +41,7 @@ RUN npm run build
 # Finally, build the production image with minimal footprint
 FROM base
 
-ENV DATABASE_URL=file:/data/sqlite.db
+ENV DATABASE_URL=postgresql://postgres:changeme@postgres:5432/family
 ENV PORT="8080"
 ENV NODE_ENV="production"
 

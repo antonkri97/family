@@ -1,8 +1,8 @@
-import type { People, User } from "@prisma/client";
+import { Gender, Prisma, type People, type User } from "@prisma/client";
 
 import { prisma } from "~/db.server";
 
-export function getPeople({
+export async function getPeople({
   id,
   userId,
 }: Pick<People, "id"> & {
@@ -10,61 +10,79 @@ export function getPeople({
 }) {
   return prisma.people.findFirst({
     where: { id, userId },
-    include: {
-      gender: true,
-    },
+    include: { wife: true, husband: true },
   });
 }
 
-export async function getPossibleSpouses(userId: string, genderId: string) {
-  const gender = await prisma.gender.findFirst({
-    where: { NOT: { id: { equals: genderId } } },
-  });
-
-  return prisma.people.findMany({
-    where: { userId, genderId: gender?.id },
-  });
-}
-
-export function getPeopleListItems({ id }: Pick<User, "id">) {
-  return prisma.people.findMany({
+export async function getPeopleListItems({ id }: Pick<User, "id">) {
+  const ps = await prisma.people.findMany({
     where: { userId: id },
+    include: { wife: true, husband: true },
   });
+
+  return ps.map((people) => ({
+    ...people,
+    spouse: people.wife?.firstName ?? people.husband?.firstName,
+  }));
 }
 
-export function createPeople({
-  firstName,
-  secondName,
-  thirdName,
-  birthday,
-  genderId,
-  bio,
-  userId,
-}: Pick<
-  People,
-  "firstName" | "secondName" | "thirdName" | "birthday" | "genderId" | "bio"
-> & {
-  userId: User["id"];
-}) {
-  return prisma.people.create({
+export async function createPeople(
+  people: Pick<
+    People,
+    | "firstName"
+    | "secondName"
+    | "thirdName"
+    | "birthday"
+    | "gender"
+    | "bio"
+    | "spouseId"
+  > & {
+    userId: User["id"];
+  }
+) {
+  const {
+    firstName,
+    secondName,
+    thirdName,
+    birthday,
+    gender,
+    bio,
+    userId,
+    spouseId,
+  } = people;
+
+  const newPeople = await prisma.people.create({
     data: {
       firstName,
       secondName,
       thirdName,
       birthday,
       bio,
+      gender,
+      ...(spouseId
+        ? gender === Gender.MALE
+          ? { wife: { connect: { id: spouseId } } }
+          : { husband: { connect: { id: spouseId } } }
+        : {}),
       user: {
         connect: {
           id: userId,
         },
       },
-      gender: {
-        connect: {
-          id: genderId,
-        },
-      },
     },
   });
+
+  if (spouseId && newPeople) {
+    prisma.people.update({
+      where: { id: spouseId },
+      data:
+        gender === Gender.FEMALE
+          ? { husband: { connect: { id: newPeople.id } } }
+          : { wife: { connect: { id: newPeople.id } } },
+    });
+  }
+
+  return newPeople;
 }
 
 export function deletePeople({
