@@ -58,8 +58,6 @@ export const action = async ({ request }: ActionArgs) => {
     return redirect(`/main/people/${people.id}`);
   }
 
-  console.log(parsed.error);
-
   return json(
     {
       errors: {

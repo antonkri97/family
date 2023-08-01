@@ -1,8 +1,8 @@
-import { Gender, type People, type User } from "@prisma/client";
+import { Gender, Prisma, type People, type User } from "@prisma/client";
 
 import { prisma } from "~/db.server";
 
-export function getPeople({
+export async function getPeople({
   id,
   userId,
 }: Pick<People, "id"> & {
@@ -10,21 +10,20 @@ export function getPeople({
 }) {
   return prisma.people.findFirst({
     where: { id, userId },
+    include: { wife: true, husband: true },
   });
 }
 
-export function getPeopleListItems({ id }: Pick<User, "id">) {
-  return prisma.people
-    .findMany({
-      where: { userId: id },
-      include: { wife: true, husband: true },
-    })
-    .then((ps) =>
-      ps.map((people) => ({
-        ...people,
-        spouse: people.wife?.firstName ?? people.husband?.firstName,
-      }))
-    );
+export async function getPeopleListItems({ id }: Pick<User, "id">) {
+  const ps = await prisma.people.findMany({
+    where: { userId: id },
+    include: { wife: true, husband: true },
+  });
+
+  return ps.map((people) => ({
+    ...people,
+    spouse: people.wife?.firstName ?? people.husband?.firstName,
+  }));
 }
 
 export async function createPeople(
