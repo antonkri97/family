@@ -1,34 +1,34 @@
-import { Gender, Prisma, type People, type User } from "@prisma/client";
+import { Gender, Prisma, type Person, type User } from "@prisma/client";
 
 import { prisma } from "~/db.server";
 
-export async function getPeople({
+export async function getPerson({
   id,
   userId,
-}: Pick<People, "id"> & {
+}: Pick<Person, "id"> & {
   userId: User["id"];
 }) {
-  return prisma.people.findFirst({
+  return prisma.person.findFirst({
     where: { id, userId },
     include: { wife: true, husband: true },
   });
 }
 
-export async function getPeopleListItems({ id }: Pick<User, "id">) {
-  const ps = await prisma.people.findMany({
+export async function getPersonListItems({ id }: Pick<User, "id">) {
+  const ps = await prisma.person.findMany({
     where: { userId: id },
     include: { wife: true, husband: true },
   });
 
-  return ps.map((people) => ({
-    ...people,
-    spouse: people.wife?.firstName ?? people.husband?.firstName,
+  return ps.map((person) => ({
+    ...person,
+    spouse: person.wife?.firstName ?? person.husband?.firstName,
   }));
 }
 
-export async function createPeople(
-  people: Pick<
-    People,
+export async function createPerson(
+  person: Pick<
+    Person,
     | "firstName"
     | "secondName"
     | "thirdName"
@@ -49,9 +49,9 @@ export async function createPeople(
     bio,
     userId,
     spouseId,
-  } = people;
+  } = person;
 
-  const newPeople = await prisma.people.create({
+  const newPerson = await prisma.person.create({
     data: {
       firstName,
       secondName,
@@ -72,24 +72,24 @@ export async function createPeople(
     },
   });
 
-  if (spouseId && newPeople) {
-    prisma.people.update({
+  if (spouseId && newPerson) {
+    prisma.person.update({
       where: { id: spouseId },
       data:
         gender === Gender.FEMALE
-          ? { husband: { connect: { id: newPeople.id } } }
-          : { wife: { connect: { id: newPeople.id } } },
+          ? { husband: { connect: { id: newPerson.id } } }
+          : { wife: { connect: { id: newPerson.id } } },
     });
   }
 
-  return newPeople;
+  return newPerson;
 }
 
-export function deletePeople({
+export function deletePerson({
   id,
   userId,
-}: Pick<People, "id"> & { userId: User["id"] }) {
-  return prisma.people.deleteMany({
+}: Pick<Person, "id"> & { userId: User["id"] }) {
+  return prisma.person.deleteMany({
     where: { id, userId },
   });
 }

@@ -6,22 +6,22 @@ import { useEffect, useRef, useState } from "react";
 import { nullable, object, optional, string, z } from "zod";
 import { getGenders } from "~/models/gender.server";
 
-import { createPeople, getPeopleListItems } from "~/models/people.server";
+import { createPerson, getPersonListItems } from "~/models/person.server";
 import { Button, Input, Select, Textarea } from "~/modules/shared";
 import { requireUserId } from "~/session.server";
 
 export const loader = async ({ params, request }: LoaderArgs) => {
   const userId = await requireUserId(request);
   const genders = getGenders();
-  const people = await getPeopleListItems({ id: userId });
+  const person = await getPersonListItems({ id: userId });
 
-  return json({ people, genders });
+  return json({ person, genders });
 };
 
 export const action = async ({ request }: ActionArgs) => {
   const userId = await requireUserId(request);
 
-  const People = object({
+  const Person = object({
     firstName: string(),
     secondName: string(),
     thirdName: string(),
@@ -33,7 +33,7 @@ export const action = async ({ request }: ActionArgs) => {
 
   const formData = await request.formData();
 
-  const parsed = People.safeParse({
+  const parsed = Person.safeParse({
     firstName: formData.get("firstName"),
     secondName: formData.get("secondName"),
     thirdName: formData.get("thirdName"),
@@ -44,7 +44,7 @@ export const action = async ({ request }: ActionArgs) => {
   });
 
   if (parsed.success) {
-    const people = await createPeople({
+    const person = await createPerson({
       firstName: parsed.data.firstName,
       secondName: parsed.data.secondName,
       thirdName: parsed.data.thirdName,
@@ -55,7 +55,7 @@ export const action = async ({ request }: ActionArgs) => {
       userId,
     });
 
-    return redirect(`/main/people/${people.id}`);
+    return redirect(`/main/person/${person.id}`);
   }
 
   return json(
@@ -71,8 +71,8 @@ export const action = async ({ request }: ActionArgs) => {
   );
 };
 
-export default function NewPeoplePage() {
-  const { genders, people } = useLoaderData<typeof loader>();
+export default function NewPersonPage() {
+  const { genders, person } = useLoaderData<typeof loader>();
 
   const actionData = useActionData<typeof action>();
   const firstNameRef = useRef<HTMLInputElement>(null);
@@ -85,11 +85,11 @@ export default function NewPeoplePage() {
   const [selectedGender, setSelectedGender] = useState(genders[0].value);
 
   const [spouses, setSpouses] = useState(
-    people.filter(({ gender }) => selectedGender !== gender)
+    person.filter(({ gender }) => selectedGender !== gender)
   );
 
   const onGenderChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSpouses(people.filter(({ gender }) => gender !== e.target.value));
+    setSpouses(person.filter(({ gender }) => gender !== e.target.value));
     setSelectedGender(e.target.value as Gender);
   };
 

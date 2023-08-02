@@ -17,7 +17,7 @@ model User {
   password Password?
 
   trees  Tree[]
-  people People[]
+  person Person[]
 }
 
 model Password {
@@ -31,13 +31,13 @@ model Tree {
   id   String @id @default(cuid())
   name String
 
-  people People[]
+  person Person[]
 
   user   User   @relation(fields: [userId], references: [id])
   userId String
 }
 
-model People {
+model Person {
   id        String @id @default(cuid())
   firstName String
 
@@ -48,17 +48,17 @@ model People {
 
   gender Gender
 
-  father   People? @relation("Parent", fields: [fatherId], references: [id])
-  mother   People? @relation("Parent")
+  father   Person? @relation("Parent", fields: [fatherId], references: [id])
+  mother   Person? @relation("Parent")
   fatherId String? @unique
   motherId String? @unique
 
   spouseId String? @unique
-  husband  People? @relation("Spouse", fields: [spouseId], references: [id])
-  wife     People? @relation("Spouse")
+  husband  Person? @relation("Spouse", fields: [spouseId], references: [id])
+  wife     Person? @relation("Spouse")
 
-  ex         People[] @relation("Ex")
-  exRelation People[] @relation("Ex")
+  ex         Person[] @relation("Ex")
+  exRelation Person[] @relation("Ex")
 
   bio String?
 
