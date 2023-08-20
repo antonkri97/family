@@ -1,6 +1,6 @@
 import { Link } from "@remix-run/react";
 
-export default function PeopleIndexPage() {
+export default function PersonIndexPage() {
   return (
     <p>
       Выберите члена семьи для просмотра или{" "}

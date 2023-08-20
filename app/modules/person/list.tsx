@@ -1,11 +1,11 @@
-import type { People } from "@prisma/client";
+import type { Person } from "@prisma/client";
 import { Table } from "../shared";
 
-export const PeopleList = ({
-  people,
+export const PersonList = ({
+  person,
 }: {
-  people: (Pick<
-    People,
+  person: (Pick<
+    Person,
     "id" | "firstName" | "secondName" | "thirdName" | "birthday"
   > & { spouse?: string })[];
 }) => (
@@ -17,6 +17,6 @@ export const PeopleList = ({
       { field: "birthday", header: "Дата рождения" },
       { field: "spouse", header: "Супруг(а)" },
     ]}
-    data={people}
+    data={person}
   />
 );

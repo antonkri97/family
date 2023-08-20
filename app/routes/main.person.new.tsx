@@ -3,59 +3,67 @@ import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import { useEffect, useRef, useState } from "react";
-import { nullable, object, optional, string, z } from "zod";
+import { nullable, object, string, z } from "zod";
 import { getGenders } from "~/models/gender.server";
 
-import { createPeople, getPeopleListItems } from "~/models/people.server";
+import { createPerson, getPersonListItems } from "~/models/person.server";
 import { Button, Input, Select, Textarea } from "~/modules/shared";
 import { requireUserId } from "~/session.server";
 
 export const loader = async ({ params, request }: LoaderArgs) => {
   const userId = await requireUserId(request);
   const genders = getGenders();
-  const people = await getPeopleListItems({ id: userId });
+  const persons = await getPersonListItems({ id: userId });
+  const mothers = persons.filter(({ gender }) => gender === Gender.FEMALE);
+  const fathers = persons.filter(({ gender }) => gender === Gender.MALE);
 
-  return json({ people, genders });
+  return json({ persons, genders, mothers, fathers });
 };
 
 export const action = async ({ request }: ActionArgs) => {
   const userId = await requireUserId(request);
 
-  const People = object({
+  const Person = object({
     firstName: string(),
-    secondName: string(),
-    thirdName: string(),
-    birthday: string(),
+    secondName: nullable(string()),
+    thirdName: nullable(string()),
+    birthday: nullable(string()),
     gender: z.enum([Gender.MALE, Gender.FEMALE]),
     spouse: nullable(string()),
+    mother: nullable(string()),
+    father: nullable(string()),
     bio: nullable(string()),
   });
 
   const formData = await request.formData();
 
-  const parsed = People.safeParse({
+  const parsed = Person.safeParse({
     firstName: formData.get("firstName"),
     secondName: formData.get("secondName"),
     thirdName: formData.get("thirdName"),
     birthday: formData.get("birthday"),
     gender: formData.get("gender"),
     spouse: formData.get("spouse"),
+    mother: formData.get("mother"),
+    father: formData.get("father"),
     bio: formData.get("bio"),
   });
 
   if (parsed.success) {
-    const people = await createPeople({
+    const person = await createPerson({
       firstName: parsed.data.firstName,
       secondName: parsed.data.secondName,
       thirdName: parsed.data.thirdName,
       birthday: parsed.data.birthday,
       gender: parsed.data.gender,
       spouseId: parsed.data.spouse,
+      motherId: parsed.data.mother,
+      fatherId: parsed.data.father,
       bio: parsed.data.bio ?? "",
       userId,
     });
 
-    return redirect(`/main/people/${people.id}`);
+    return redirect(`/main/person/${person.id}`);
   }
 
   return json(
@@ -71,8 +79,8 @@ export const action = async ({ request }: ActionArgs) => {
   );
 };
 
-export default function NewPeoplePage() {
-  const { genders, people } = useLoaderData<typeof loader>();
+export default function NewPersonPage() {
+  const { genders, persons, fathers, mothers } = useLoaderData<typeof loader>();
 
   const actionData = useActionData<typeof action>();
   const firstNameRef = useRef<HTMLInputElement>(null);
@@ -80,16 +88,15 @@ export default function NewPeoplePage() {
   const thirdNameRef = useRef<HTMLInputElement>(null);
   const birthDayRef = useRef<HTMLInputElement>(null);
   const genderRef = useRef<HTMLSelectElement>(null);
-  const spousesRef = useRef<HTMLSelectElement>(null);
 
   const [selectedGender, setSelectedGender] = useState(genders[0].value);
 
   const [spouses, setSpouses] = useState(
-    people.filter(({ gender }) => selectedGender !== gender)
+    persons.filter(({ gender }) => selectedGender !== gender)
   );
 
   const onGenderChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSpouses(people.filter(({ gender }) => gender !== e.target.value));
+    setSpouses(persons.filter(({ gender }) => gender !== e.target.value));
     setSelectedGender(e.target.value as Gender);
   };
 
@@ -164,6 +171,7 @@ export default function NewPeoplePage() {
         selectRef={genderRef}
         onChange={(e) => onGenderChange(e)}
         name="gender"
+        addEmpty={false}
       >
         {genders.map((gender) => (
           <option key={gender.value} value={gender.value}>
@@ -172,10 +180,26 @@ export default function NewPeoplePage() {
         ))}
       </Select>
 
-      <Select label="Супруг(а): " selectRef={spousesRef} name="spouse">
+      <Select label="Супруг(а): " name="spouse">
         {spouses.map((spouse) => (
           <option key={spouse.id} value={spouse.id}>
             {`${spouse.secondName} ${spouse.firstName} ${spouse.thirdName}`}
+          </option>
+        ))}
+      </Select>
+
+      <Select label="Мать" name="mother">
+        {mothers.map((mother) => (
+          <option key={mother.id} value={mother.id}>
+            {`${mother.secondName} ${mother.firstName} ${mother.thirdName}`}
+          </option>
+        ))}
+      </Select>
+
+      <Select label="Отец" name="father">
+        {fathers.map((father) => (
+          <option key={father.id} value={father.id}>
+            {`${father.secondName} ${father.firstName} ${father.thirdName}`}
           </option>
         ))}
       </Select>

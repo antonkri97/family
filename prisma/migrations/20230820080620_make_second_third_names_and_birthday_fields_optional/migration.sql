@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE "Person" ALTER COLUMN "secondName" DROP NOT NULL,
+ALTER COLUMN "thirdName" DROP NOT NULL,
+ALTER COLUMN "birthday" DROP NOT NULL;

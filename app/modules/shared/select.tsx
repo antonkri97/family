@@ -9,14 +9,16 @@ export const Select = ({
   ariaErrorMessage,
   errorMessage,
   children,
+  addEmpty = true,
 }: PropsWithChildren<{
-  selectRef: React.RefObject<HTMLSelectElement>;
+  selectRef?: React.RefObject<HTMLSelectElement>;
   onChange?: (event: React.ChangeEvent<HTMLSelectElement>) => void;
   name: string;
   invalid?: true | undefined;
   ariaErrorMessage?: string | undefined;
   errorMessage?: string | undefined | null;
   label: string;
+  addEmpty?: boolean;
 }>) => (
   <div>
     <div>
@@ -31,6 +33,7 @@ export const Select = ({
           aria-invalid={invalid}
           aria-errormessage={ariaErrorMessage}
         >
+          {addEmpty ? <option value={""}>—</option> : null}
           {children}
         </select>
       </label>

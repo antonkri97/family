@@ -1,4 +1,5 @@
-import { People } from "@prisma/client";
+import type { Person } from "@prisma/client";
+import { Gender } from "@prisma/client";
 import { useMatches } from "@remix-run/react";
 import { useMemo } from "react";
 
@@ -72,16 +73,20 @@ export function validateEmail(email: unknown): email is string {
 }
 
 export function formatName(
-  people:
-    | Partial<Pick<People, "firstName" | "secondName" | "thirdName">>
+  person:
+    | Partial<Pick<Person, "firstName" | "secondName" | "thirdName">>
     | null
     | undefined
 ): string {
-  const { secondName, firstName, thirdName } = people ?? {
+  const { secondName, firstName, thirdName } = person ?? {
     firstName: "",
     secondName: "",
     thirdName: "",
   };
 
   return `${secondName} ${firstName} ${thirdName}`;
+}
+
+export function isMale(person: Pick<Person, "gender">): boolean {
+  return person.gender === Gender.MALE;
 }

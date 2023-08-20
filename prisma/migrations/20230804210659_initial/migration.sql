@@ -27,7 +27,7 @@ CREATE TABLE "Tree" (
 );
 
 -- CreateTable
-CREATE TABLE "People" (
+CREATE TABLE "Person" (
     "id" TEXT NOT NULL,
     "firstName" TEXT NOT NULL,
     "secondName" TEXT NOT NULL,
@@ -42,7 +42,7 @@ CREATE TABLE "People" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "People_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Person_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -52,7 +52,7 @@ CREATE TABLE "_Ex" (
 );
 
 -- CreateTable
-CREATE TABLE "_PeopleToTree" (
+CREATE TABLE "_PersonToTree" (
     "A" TEXT NOT NULL,
     "B" TEXT NOT NULL
 );
@@ -64,13 +64,13 @@ CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 CREATE UNIQUE INDEX "Password_userId_key" ON "Password"("userId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "People_fatherId_key" ON "People"("fatherId");
+CREATE UNIQUE INDEX "Person_fatherId_key" ON "Person"("fatherId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "People_motherId_key" ON "People"("motherId");
+CREATE UNIQUE INDEX "Person_motherId_key" ON "Person"("motherId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "People_spouseId_key" ON "People"("spouseId");
+CREATE UNIQUE INDEX "Person_spouseId_key" ON "Person"("spouseId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "_Ex_AB_unique" ON "_Ex"("A", "B");
@@ -79,10 +79,10 @@ CREATE UNIQUE INDEX "_Ex_AB_unique" ON "_Ex"("A", "B");
 CREATE INDEX "_Ex_B_index" ON "_Ex"("B");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "_PeopleToTree_AB_unique" ON "_PeopleToTree"("A", "B");
+CREATE UNIQUE INDEX "_PersonToTree_AB_unique" ON "_PersonToTree"("A", "B");
 
 -- CreateIndex
-CREATE INDEX "_PeopleToTree_B_index" ON "_PeopleToTree"("B");
+CREATE INDEX "_PersonToTree_B_index" ON "_PersonToTree"("B");
 
 -- AddForeignKey
 ALTER TABLE "Password" ADD CONSTRAINT "Password_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -91,22 +91,22 @@ ALTER TABLE "Password" ADD CONSTRAINT "Password_userId_fkey" FOREIGN KEY ("userI
 ALTER TABLE "Tree" ADD CONSTRAINT "Tree_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "People" ADD CONSTRAINT "People_fatherId_fkey" FOREIGN KEY ("fatherId") REFERENCES "People"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Person" ADD CONSTRAINT "Person_fatherId_fkey" FOREIGN KEY ("fatherId") REFERENCES "Person"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "People" ADD CONSTRAINT "People_spouseId_fkey" FOREIGN KEY ("spouseId") REFERENCES "People"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Person" ADD CONSTRAINT "Person_spouseId_fkey" FOREIGN KEY ("spouseId") REFERENCES "Person"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "People" ADD CONSTRAINT "People_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Person" ADD CONSTRAINT "Person_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "_Ex" ADD CONSTRAINT "_Ex_A_fkey" FOREIGN KEY ("A") REFERENCES "People"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "_Ex" ADD CONSTRAINT "_Ex_A_fkey" FOREIGN KEY ("A") REFERENCES "Person"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "_Ex" ADD CONSTRAINT "_Ex_B_fkey" FOREIGN KEY ("B") REFERENCES "People"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "_Ex" ADD CONSTRAINT "_Ex_B_fkey" FOREIGN KEY ("B") REFERENCES "Person"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "_PeopleToTree" ADD CONSTRAINT "_PeopleToTree_A_fkey" FOREIGN KEY ("A") REFERENCES "People"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "_PersonToTree" ADD CONSTRAINT "_PersonToTree_A_fkey" FOREIGN KEY ("A") REFERENCES "Person"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "_PeopleToTree" ADD CONSTRAINT "_PeopleToTree_B_fkey" FOREIGN KEY ("B") REFERENCES "Tree"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "_PersonToTree" ADD CONSTRAINT "_PersonToTree_B_fkey" FOREIGN KEY ("B") REFERENCES "Tree"("id") ON DELETE CASCADE ON UPDATE CASCADE;

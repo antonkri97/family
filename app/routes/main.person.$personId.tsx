@@ -1,3 +1,4 @@
+import { Gender } from "@prisma/client";
 import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import {
@@ -8,59 +9,59 @@ import {
 } from "@remix-run/react";
 import invariant from "tiny-invariant";
 
-import { deletePeople, getPeople } from "~/models/people.server";
+import { deletePerson, getPerson } from "~/models/person.server";
 import { requireUserId } from "~/session.server";
+import { formatName, isMale } from "~/utils";
 
 export const loader = async ({ params, request }: LoaderArgs) => {
   const userId = await requireUserId(request);
-  invariant(params.peopleId, "peopleId not found");
+  invariant(params.personId, "personId not found");
 
-  const people = await getPeople({ id: params.peopleId, userId });
-  if (!people) {
+  const person = await getPerson({ id: params.personId, userId });
+  if (!person) {
     throw new Response("Not Found", { status: 404 });
   }
-  return json({ people });
+  return json({ person });
 };
 
 export const action = async ({ params, request }: ActionArgs) => {
   const userId = await requireUserId(request);
-  invariant(params.peopleId, "peopleId not found");
+  invariant(params.personId, "personId not found");
 
-  await deletePeople({ id: params.peopleId, userId });
+  await deletePerson({ id: params.personId, userId });
 
-  return redirect("/people");
+  return redirect("/main/person/new");
 };
 
-export default function PeopleDetailsPage() {
-  const { people } = useLoaderData<typeof loader>();
+export default function PersonDetailsPage() {
+  const { person } = useLoaderData<typeof loader>();
 
-  console.log(people);
-
-  function makeItemFactory<P extends typeof people>(people: P) {
-    return function <K extends keyof P>(label: string, key: K) {
-      return {
-        label,
-        value: people[key],
-      };
-    };
-  }
-
-  const makeItem = makeItemFactory(people);
-
-  const info = [
-    makeItem("День рождения", "birthday"),
+  const info: { label: string; value: string }[] = [
+    {
+      label: "Имя",
+      value: formatName(person),
+    },
     {
       label: "Пол",
-      value: people.gender.name,
+      value: isMale(person) ? "Мужской" : "Женский",
     },
-    makeItem("Отец", "fatherId"),
-    makeItem("Мать", "motherId"),
-    makeItem("Биография", "bio"),
+    {
+      label: "Отец",
+      value: formatName(person.father),
+    },
+    {
+      label: "Мать",
+      value: formatName(person.mother),
+    },
+    {
+      label: isMale(person) ? "Жена" : "Муж",
+      value: formatName(isMale(person) ? person.wife : person.husband),
+    },
   ];
 
   return (
     <div>
-      <h3 className="text-2xl font-bold">{`${people.secondName} ${people.firstName} ${people.thirdName}`}</h3>
+      <h3 className="text-2xl font-bold">{`${person.secondName} ${person.firstName} ${person.thirdName}`}</h3>
 
       <hr className="my-4" />
 

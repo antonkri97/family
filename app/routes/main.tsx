@@ -2,17 +2,17 @@ import type { LoaderArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Form, Link, NavLink, Outlet, useLoaderData } from "@remix-run/react";
 
-import { getPeopleListItems } from "~/models/people.server";
+import { getPersonListItems } from "~/models/person.server";
 import { requireUserId } from "~/session.server";
 import { useUser } from "~/utils";
 
 export const loader = async ({ request }: LoaderArgs) => {
   const userId = await requireUserId(request);
-  const people = await getPeopleListItems({ id: userId });
-  return json({ people });
+  const person = await getPersonListItems({ id: userId });
+  return json({ person });
 };
 
-export default function PeoplePage() {
+export default function PersonPage() {
   const data = useLoaderData<typeof loader>();
   const user = useUser();
 
@@ -35,10 +35,10 @@ export default function PeoplePage() {
 
       <main className="flex h-full bg-white">
         <div className="h-full w-80 border-r bg-gray-50">
-          <Link to="people/list" className="block p-4 text-xl text-blue-500">
+          <Link to="person/list" className="block p-4 text-xl text-blue-500">
             Люди
           </Link>
-          <Link to="people/new" className="block p-4 text-xl text-blue-500">
+          <Link to="person/new" className="block p-4 text-xl text-blue-500">
             Добавить человека
           </Link>
           <Link to="trees" className="block p-4 text-xl text-blue-500">
@@ -47,19 +47,19 @@ export default function PeoplePage() {
 
           <hr />
 
-          {data.people.length === 0 ? (
+          {data.person.length === 0 ? (
             <p className="p-4">Пока никого нет</p>
           ) : (
             <ol>
-              {data.people.map((people) => (
-                <li key={people.id}>
+              {data.person.map((person) => (
+                <li key={person.id}>
                   <NavLink
                     className={({ isActive }) =>
                       `block border-b p-4 text-xl ${isActive ? "bg-white" : ""}`
                     }
-                    to={`people/${people.id}`}
+                    to={`person/${person.id}`}
                   >
-                    😀 {people.firstName}
+                    😀 {person.firstName}
                   </NavLink>
                 </li>
               ))}
