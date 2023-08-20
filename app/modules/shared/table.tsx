@@ -8,7 +8,10 @@ export const Table = ({
   data,
 }: {
   colDef: ColDef[];
-  data: ({ id: string | number } & Record<string, string | number | boolean>)[];
+  data: ({ id: string | number } & Record<
+    string,
+    string | number | boolean | null
+  >)[];
 }) => (
   <table className="table-auto border-collapse border border-slate-400">
     <thead>

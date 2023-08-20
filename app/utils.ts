@@ -1,4 +1,5 @@
-import { Person } from "@prisma/client";
+import type { Person } from "@prisma/client";
+import { Gender } from "@prisma/client";
 import { useMatches } from "@remix-run/react";
 import { useMemo } from "react";
 
@@ -84,4 +85,8 @@ export function formatName(
   };
 
   return `${secondName} ${firstName} ${thirdName}`;
+}
+
+export function isMale(person: Pick<Person, "gender">): boolean {
+  return person.gender === Gender.MALE;
 }

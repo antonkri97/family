@@ -3,7 +3,7 @@ import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import { useEffect, useRef, useState } from "react";
-import { nullable, object, optional, string, z } from "zod";
+import { nullable, object, string, z } from "zod";
 import { getGenders } from "~/models/gender.server";
 
 import { createPerson, getPersonListItems } from "~/models/person.server";
@@ -13,9 +13,11 @@ import { requireUserId } from "~/session.server";
 export const loader = async ({ params, request }: LoaderArgs) => {
   const userId = await requireUserId(request);
   const genders = getGenders();
-  const person = await getPersonListItems({ id: userId });
+  const persons = await getPersonListItems({ id: userId });
+  const mothers = persons.filter(({ gender }) => gender === Gender.FEMALE);
+  const fathers = persons.filter(({ gender }) => gender === Gender.MALE);
 
-  return json({ person, genders });
+  return json({ persons, genders, mothers, fathers });
 };
 
 export const action = async ({ request }: ActionArgs) => {
@@ -23,11 +25,13 @@ export const action = async ({ request }: ActionArgs) => {
 
   const Person = object({
     firstName: string(),
-    secondName: string(),
-    thirdName: string(),
-    birthday: string(),
+    secondName: nullable(string()),
+    thirdName: nullable(string()),
+    birthday: nullable(string()),
     gender: z.enum([Gender.MALE, Gender.FEMALE]),
     spouse: nullable(string()),
+    mother: nullable(string()),
+    father: nullable(string()),
     bio: nullable(string()),
   });
 
@@ -40,6 +44,8 @@ export const action = async ({ request }: ActionArgs) => {
     birthday: formData.get("birthday"),
     gender: formData.get("gender"),
     spouse: formData.get("spouse"),
+    mother: formData.get("mother"),
+    father: formData.get("father"),
     bio: formData.get("bio"),
   });
 
@@ -51,6 +57,8 @@ export const action = async ({ request }: ActionArgs) => {
       birthday: parsed.data.birthday,
       gender: parsed.data.gender,
       spouseId: parsed.data.spouse,
+      motherId: parsed.data.mother,
+      fatherId: parsed.data.father,
       bio: parsed.data.bio ?? "",
       userId,
     });
@@ -72,7 +80,7 @@ export const action = async ({ request }: ActionArgs) => {
 };
 
 export default function NewPersonPage() {
-  const { genders, person } = useLoaderData<typeof loader>();
+  const { genders, persons, fathers, mothers } = useLoaderData<typeof loader>();
 
   const actionData = useActionData<typeof action>();
   const firstNameRef = useRef<HTMLInputElement>(null);
@@ -80,16 +88,15 @@ export default function NewPersonPage() {
   const thirdNameRef = useRef<HTMLInputElement>(null);
   const birthDayRef = useRef<HTMLInputElement>(null);
   const genderRef = useRef<HTMLSelectElement>(null);
-  const spousesRef = useRef<HTMLSelectElement>(null);
 
   const [selectedGender, setSelectedGender] = useState(genders[0].value);
 
   const [spouses, setSpouses] = useState(
-    person.filter(({ gender }) => selectedGender !== gender)
+    persons.filter(({ gender }) => selectedGender !== gender)
   );
 
   const onGenderChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSpouses(person.filter(({ gender }) => gender !== e.target.value));
+    setSpouses(persons.filter(({ gender }) => gender !== e.target.value));
     setSelectedGender(e.target.value as Gender);
   };
 
@@ -164,6 +171,7 @@ export default function NewPersonPage() {
         selectRef={genderRef}
         onChange={(e) => onGenderChange(e)}
         name="gender"
+        addEmpty={false}
       >
         {genders.map((gender) => (
           <option key={gender.value} value={gender.value}>
@@ -172,10 +180,26 @@ export default function NewPersonPage() {
         ))}
       </Select>
 
-      <Select label="Супруг(а): " selectRef={spousesRef} name="spouse">
+      <Select label="Супруг(а): " name="spouse">
         {spouses.map((spouse) => (
           <option key={spouse.id} value={spouse.id}>
             {`${spouse.secondName} ${spouse.firstName} ${spouse.thirdName}`}
+          </option>
+        ))}
+      </Select>
+
+      <Select label="Мать" name="mother">
+        {mothers.map((mother) => (
+          <option key={mother.id} value={mother.id}>
+            {`${mother.secondName} ${mother.firstName} ${mother.thirdName}`}
+          </option>
+        ))}
+      </Select>
+
+      <Select label="Отец" name="father">
+        {fathers.map((father) => (
+          <option key={father.id} value={father.id}>
+            {`${father.secondName} ${father.firstName} ${father.thirdName}`}
           </option>
         ))}
       </Select>

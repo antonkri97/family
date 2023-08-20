@@ -1,3 +1,4 @@
+import { Gender } from "@prisma/client";
 import type { ActionArgs, LoaderArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import {
@@ -10,6 +11,7 @@ import invariant from "tiny-invariant";
 
 import { deletePerson, getPerson } from "~/models/person.server";
 import { requireUserId } from "~/session.server";
+import { formatName, isMale } from "~/utils";
 
 export const loader = async ({ params, request }: LoaderArgs) => {
   const userId = await requireUserId(request);
@@ -28,34 +30,33 @@ export const action = async ({ params, request }: ActionArgs) => {
 
   await deletePerson({ id: params.personId, userId });
 
-  return redirect("/person");
+  return redirect("/main/person/new");
 };
 
 export default function PersonDetailsPage() {
   const { person } = useLoaderData<typeof loader>();
 
-  console.log(person);
-
-  function makeItemFactory<P extends typeof person>(person: P) {
-    return function <K extends keyof P>(label: string, key: K) {
-      return {
-        label,
-        value: person[key],
-      };
-    };
-  }
-
-  const makeItem = makeItemFactory(person);
-
-  const info = [
-    makeItem("День рождения", "birthday"),
+  const info: { label: string; value: string }[] = [
+    {
+      label: "Имя",
+      value: formatName(person),
+    },
     {
       label: "Пол",
-      value: person.gender,
+      value: isMale(person) ? "Мужской" : "Женский",
     },
-    makeItem("Отец", "fatherId"),
-    makeItem("Мать", "motherId"),
-    makeItem("Биография", "bio"),
+    {
+      label: "Отец",
+      value: formatName(person.father),
+    },
+    {
+      label: "Мать",
+      value: formatName(person.mother),
+    },
+    {
+      label: isMale(person) ? "Жена" : "Муж",
+      value: formatName(isMale(person) ? person.wife : person.husband),
+    },
   ];
 
   return (

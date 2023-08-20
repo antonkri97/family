@@ -41,17 +41,20 @@ model Person {
   id        String @id @default(cuid())
   firstName String
 
-  secondName String
+  secondName String?
 
-  thirdName String
-  birthday  String
+  thirdName String?
+  birthday  String?
 
   gender Gender
 
-  father   Person? @relation("Parent", fields: [fatherId], references: [id])
-  mother   Person? @relation("Parent")
   fatherId String? @unique
-  motherId String? @unique
+  father   Person? @relation("Father", fields: [fatherId], references: [id])
+  faterRel Person? @relation("Father")
+
+  motherId  String? @unique
+  mother    Person? @relation("Mother", fields: [motherId], references: [id])
+  motherRel Person? @relation("Mother")
 
   spouseId String? @unique
   husband  Person? @relation("Spouse", fields: [spouseId], references: [id])
