@@ -51,11 +51,7 @@ export function getSchemas(
   return schema;
 }
 
-export type PersonId = string & { __brand: "PersonId" };
-
-export type SimplePersonValidated = Omit<z.infer<typeof personSchema>, "id"> & {
-  id: PersonId;
-};
+export type SimplePersonValidated = z.infer<typeof personSchema>;
 
 const fullSchema = getSchemas({
   father: true,
@@ -64,6 +60,4 @@ const fullSchema = getSchemas({
   wife: true,
 });
 
-export type FullPersonValidated = Omit<z.infer<typeof fullSchema>, "id"> & {
-  id: PersonId;
-};
+export type FullPersonValidated = z.infer<typeof fullSchema>;

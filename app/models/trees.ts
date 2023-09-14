@@ -1,6 +1,5 @@
 import type {
   FullPersonValidated,
-  PersonId,
   SimplePersonValidated,
 } from "~/validators/person";
 
@@ -14,11 +13,23 @@ export interface TreeNode {
 
 export function buildTrees(
   persons: FullPersonValidated[],
-  entities: Record<PersonId, FullPersonValidated>
+  entities: Record<string, FullPersonValidated>
 ): TreeNode[] | null {
   if (!persons.length) {
     return null;
   }
+
+  const children: Record<string, FullPersonValidated[]> = {};
+
+  persons.forEach((person) => {
+    if (person.fatherId) {
+      const lookup = children[person.fatherId];
+
+      lookup.push(person)
+        ? lookup.push(person)
+        : (children[person.fatherId] = []);
+    }
+  });
 
   return null;
 }

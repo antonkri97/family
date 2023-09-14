@@ -1,4 +1,3 @@
-import type { PersonId } from "~/validators/person";
 import type { TreeNode } from "./trees";
 import { buildTrees } from "./trees";
 import type { Gender } from "@prisma/client";
@@ -24,7 +23,6 @@ function generatePerson(
     motherId: null,
     spouseId: null,
     ...data,
-    id: data.id as PersonId,
   };
 }
 
