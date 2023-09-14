@@ -18,5 +18,7 @@ export const loader = async ({ request }: LoaderArgs) => {
 export default function Trees() {
   const { trees } = useLoaderData<typeof loader>();
 
-  return <TreeList trees={trees} />;
+  console.log(trees);
+
+  return <h3>Дерево</h3>;
 }
