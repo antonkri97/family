@@ -16,12 +16,19 @@ export function buildTrees(
   entities: Record<string, FullPersonValidated>
 ): TreeNode[] | null {
   if (!persons.length) {
-    return null;
+    return [];
   }
 
   const children = getChildren(persons);
+  const trees: TreeNode[] = [];
 
-  return null;
+  persons.forEach((person) => {
+    if (person.fatherId === null) {
+      trees.push(buildTree(person, children, entities));
+    }
+  });
+
+  return trees;
 }
 
 export function getChildren(
@@ -38,4 +45,21 @@ export function getChildren(
   });
 
   return children;
+}
+
+export function buildTree(
+  person: FullPersonValidated,
+  children: Record<string, FullPersonValidated[]>,
+  entities: Record<string, FullPersonValidated>
+): TreeNode {
+  const _children = children[person.id] ?? [];
+  return {
+    person: person,
+    spouse: person.spouseId ? entities[person.spouseId] : null,
+    father: person.fatherId ? entities[person.fatherId] : null,
+    mother: person.motherId ? entities[person.motherId] : null,
+    children: _children.map(({ id }) =>
+      buildTree(entities[id], children, entities)
+    ),
+  };
 }
