@@ -23,7 +23,7 @@ export function buildTrees(
   const trees: TreeNode[] = [];
 
   persons.forEach((person) => {
-    if (person.fatherId === null) {
+    if (person.fatherId === null && person.gender === "MALE") {
       trees.push(buildTree(person, children, entities));
     }
   });

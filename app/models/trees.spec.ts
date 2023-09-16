@@ -65,59 +65,173 @@ const p8 = generatePerson({
 
 const persons: Persons = [p1, p2, p3, p4, p5, p6, p7, p8];
 
+const father = generatePerson({
+  id: "1",
+  gender: "MALE",
+  spouseId: "2",
+  firstName: "FIRST_FATHER",
+});
+const wife = generatePerson({
+  id: "2",
+  gender: "FEMALE",
+  spouseId: "1",
+  firstName: "FIRST_MOTHER",
+});
+const son = generatePerson({
+  firstName: "FIRST_SON",
+  id: "3",
+  gender: "MALE",
+  fatherId: "1",
+  motherId: "2",
+  spouseId: "4",
+});
+const secondGenWife = generatePerson({
+  id: "4",
+  spouseId: son.id,
+  fatherId: null,
+  motherId: null,
+  gender: "FEMALE",
+});
+const thirdGenFather = generatePerson({
+  id: "5",
+  fatherId: son.id,
+  motherId: secondGenWife.id,
+  gender: "MALE",
+});
+const thirdGenWife = generatePerson({
+  id: "6",
+  fatherId: null,
+  motherId: null,
+  gender: "MALE",
+});
+const forthGenSon = generatePerson({
+  id: "7",
+  fatherId: thirdGenFather.id,
+  motherId: thirdGenWife.id,
+  gender: "MALE",
+});
+
 describe("buildTrees", () => {
-  test("should return empty array", () => {
+  test("should returns empty array", () => {
     expect(buildTrees([], {})).toStrictEqual([]);
+  });
+
+  test("should builds two trees", () => {
+    const leo = generatePerson({
+      id: "1",
+      gender: "MALE",
+      spouseId: "2",
+      firstName: "LEO",
+    });
+    const mary = generatePerson({
+      id: "2",
+      gender: "FEMALE",
+      spouseId: "1",
+      firstName: "MARY",
+    });
+    const martin = generatePerson({
+      id: "3",
+      gender: "MALE",
+      firstName: "MARTIN",
+      motherId: mary.id,
+      fatherId: leo.id,
+      spouseId: "4",
+    });
+    const lily = generatePerson({
+      id: "4",
+      firstName: "LILY",
+      gender: "FEMALE",
+      spouseId: martin.id,
+    });
+    const luter = generatePerson({
+      id: "5",
+      gender: "MALE",
+      firstName: "LUTER",
+      fatherId: martin.id,
+      motherId: lily.id,
+    });
+
+    const firstTree: TreeNode = {
+      person: leo,
+      spouse: mary,
+      father: null,
+      mother: null,
+      children: [
+        {
+          person: martin,
+          father: leo,
+          mother: mary,
+          spouse: lily,
+          children: [
+            {
+              person: luter,
+              father: martin,
+              mother: lily,
+              spouse: null,
+              children: [],
+            },
+          ],
+        },
+      ],
+    };
+
+    const robert = generatePerson({
+      id: "10",
+      gender: "MALE",
+      firstName: "ROBERT",
+      spouseId: "11",
+    });
+    const jessy = generatePerson({
+      id: "11",
+      gender: "FEMALE",
+      firstName: "JASSY",
+      spouseId: "10",
+    });
+
+    const jack = generatePerson({
+      id: "12",
+      gender: "MALE",
+      firstName: "JACK",
+      motherId: "11",
+      fatherId: "10",
+    });
+
+    const secondTree: TreeNode = {
+      person: robert,
+      spouse: jessy,
+      mother: null,
+      father: null,
+      children: [
+        {
+          person: jack,
+          spouse: null,
+          mother: jessy,
+          father: robert,
+          children: [],
+        },
+      ],
+    };
+    const persons: Persons = [
+      leo,
+      mary,
+      martin,
+      lily,
+      luter,
+      robert,
+      jessy,
+      jack,
+    ];
+
+    const entities = getEntities(persons);
+    const expectedTrees = [firstTree, secondTree];
+
+    const actualTrees = buildTrees(persons, entities);
+
+    expect(actualTrees).toStrictEqual(expectedTrees);
   });
 });
 
 describe("buildTree", () => {
-  const father = generatePerson({
-    id: "1",
-    gender: "MALE",
-    spouseId: "2",
-    firstName: "FIRST_FATHER",
-  });
-  const wife = generatePerson({
-    id: "2",
-    gender: "FEMALE",
-    spouseId: "1",
-    firstName: "FIRST_MOTHER",
-  });
-  const son = generatePerson({
-    firstName: "FIRST_SON",
-    id: "3",
-    gender: "MALE",
-    fatherId: "1",
-    motherId: "2",
-    spouseId: "4",
-  });
-  const secondGenWife = generatePerson({
-    id: "4",
-    spouseId: son.id,
-    fatherId: null,
-    motherId: null,
-    gender: "FEMALE",
-  });
-  const thirdGenFather = generatePerson({
-    id: "5",
-    fatherId: son.id,
-    motherId: secondGenWife.id,
-    gender: "MALE",
-  });
-  const thirdGenWife = generatePerson({
-    id: "6",
-    fatherId: null,
-    motherId: null,
-    gender: "MALE",
-  });
-  const forthGenSon = generatePerson({
-    id: "7",
-    fatherId: thirdGenFather.id,
-    motherId: thirdGenWife.id,
-    gender: "MALE",
-  });
-
   test("should build simple tree", () => {
     const children = getChildren([father, wife, son, secondGenWife]);
     const entities = getEntities([father, wife, son, secondGenWife]);
