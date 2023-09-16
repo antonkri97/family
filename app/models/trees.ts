@@ -19,17 +19,23 @@ export function buildTrees(
     return null;
   }
 
+  const children = getChildren(persons);
+
+  return null;
+}
+
+export function getChildren(
+  persons: FullPersonValidated[]
+): Record<string, FullPersonValidated[]> {
   const children: Record<string, FullPersonValidated[]> = {};
 
   persons.forEach((person) => {
     if (person.fatherId) {
       const lookup = children[person.fatherId];
 
-      lookup.push(person)
-        ? lookup.push(person)
-        : (children[person.fatherId] = []);
+      children[person.fatherId] = lookup ? [...lookup, person] : [person];
     }
   });
 
-  return null;
+  return children;
 }

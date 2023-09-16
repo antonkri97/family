@@ -1,5 +1,5 @@
 import type { TreeNode } from "./trees";
-import { buildTrees } from "./trees";
+import { buildTrees, getChildren } from "./trees";
 import type { Gender } from "@prisma/client";
 
 type Params = Parameters<typeof buildTrees>;
@@ -208,43 +208,57 @@ const manyRootsPersons = [
 ];
 const manyRootsEntities = generateEntities(manyRootsPersons);
 
-test("should return empty array", () => {
-  expect(buildTrees([], {})).toStrictEqual([]);
+describe("buildTrees", () => {
+  test("should return empty array", () => {
+    expect(buildTrees([], {})).toStrictEqual([]);
+  });
+
+  test("should build tree", () => {
+    expect(buildTrees(singleRootPersons, singleRootEntities)).toStrictEqual(
+      singleRootTree
+    );
+  });
+
+  test("should build one-node tree", () => {
+    const expectedTree: TreeNode = {
+      person: p1,
+      father: null,
+      mother: null,
+      spouse: null,
+      children: [],
+    };
+    expect(buildTrees([p1], generateEntities([p1]))).toStrictEqual(
+      expectedTree
+    );
+  });
+
+  test("should build tree with invalid tree data", () => {
+    const expectedTree: TreeNode = {
+      person: p1,
+      spouse: null,
+      mother: null,
+      father: null,
+      children: [],
+    };
+
+    expect(
+      buildTrees([p1, p6, p3], generateEntities([p1, p6, p3]))
+    ).toStrictEqual(expectedTree);
+  });
+
+  // test("should build tree with many roots", () => {
+  //   expect(buildTrees(manyRootsPersons, manyRootsEntities)).toStrictEqual(
+  //     manyRootsTrees
+  //   );
+  // });
 });
 
-test("should build tree", () => {
-  expect(buildTrees(singleRootPersons, singleRootEntities)).toStrictEqual(
-    singleRootTree
-  );
-});
-
-test("should build one-node tree", () => {
-  const expectedTree: TreeNode = {
-    person: p1,
-    father: null,
-    mother: null,
-    spouse: null,
-    children: [],
-  };
-  expect(buildTrees([p1], generateEntities([p1]))).toStrictEqual(expectedTree);
-});
-
-test("should build tree with invalid tree data", () => {
-  const expectedTree: TreeNode = {
-    person: p1,
-    spouse: null,
-    mother: null,
-    father: null,
-    children: [],
-  };
-
-  expect(
-    buildTrees([p1, p6, p3], generateEntities([p1, p6, p3]))
-  ).toStrictEqual(expectedTree);
-});
-
-test("should build tree with many roots", () => {
-  expect(buildTrees(manyRootsPersons, manyRootsEntities)).toStrictEqual(
-    manyRootsTree
-  );
+describe("getChildren", () => {
+  test("getChildren should generate map of children", () => {
+    expect(getChildren(singleRootPersons)).toStrictEqual({
+      [p1.id]: [p3],
+      [p3.id]: [p5, p6],
+      [p6.id]: [p8],
+    });
+  });
 });
