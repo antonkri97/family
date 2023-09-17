@@ -29,16 +29,20 @@ export async function getPerson({
 }
 
 export async function getPersonListItems({ id }: Pick<User, "id">) {
-  const ps = await prisma.person.findMany({
+  const persons = await prisma.person.findMany({
     where: { userId: id },
-    include: { wife: true, husband: true },
+    include: { wife: true, husband: true, father: true },
   });
 
-  return ps.map((person) => ({
+  return persons.map((person) => ({
     ...person,
     spouse: person.wife?.firstName ?? person.husband?.firstName,
   }));
 }
+
+export type GetPersonsListItems = Awaited<
+  ReturnType<typeof getPersonListItems>
+>;
 
 export async function createPerson(
   person: CreatePerson & {
