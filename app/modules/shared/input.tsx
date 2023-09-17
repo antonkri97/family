@@ -5,6 +5,7 @@ export const Input = ({
   invalid,
   ariaErrorMessage,
   errorMessage,
+  dataTestId,
 }: {
   refProp: React.RefObject<HTMLInputElement>;
   name: string;
@@ -12,11 +13,13 @@ export const Input = ({
   invalid: true | undefined;
   ariaErrorMessage: string | undefined;
   errorMessage: string | undefined | null;
+  dataTestId: string | null;
 }) => (
   <div>
     <label className="flex w-full flex-col gap-1">
       <span>{label}</span>
       <input
+        data-test-id={dataTestId}
         ref={refProp}
         name={name}
         className="flex-1 rounded-md border-2 border-blue-500 px-3 text-lg leading-loose"
