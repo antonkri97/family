@@ -96,8 +96,14 @@ jobs:
       - name: 📥 Install deps
         run: npm install
 
+      - name: Set DATABASE_URL env
+        run: export DATABASE_URL="postgresql://postgres:changeme@localhost:5432/postgres"
+
+      - name: Set SESSION_SECRET env
+        run: export SESSION_SECRET="super-duper-s3cret"
+
       - name: 🛠 Setup Database
-        run: npx prisma migrate reset --force
+        run: docker compose --profile db up
 
       - name: ⚙️ Build
         run: npm run build
