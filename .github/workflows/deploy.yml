@@ -105,6 +105,9 @@ jobs:
       - name: 🛠 Setup Database
         run: docker compose --profile db-only up -d
 
+      - name: Prepare Database
+        run: npx prisma db push && npx prisma db seed
+
       - name: ⚙️ Build
         run: npm run build
 
