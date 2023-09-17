@@ -28,6 +28,18 @@ declare global {
       cleanupUser: typeof cleanupUser;
 
       /**
+       * Deletes the current @person
+       *
+       * @returns {typeof cleanupPerson}
+       * @memberof Chainable
+       * @example
+       *    cy.cleanupPerson()
+       * @example
+       *    cy.cleanupPerson({ id: '12345678' })
+       */
+      cleanupPerson: typeof cleanupPerson;
+
+      /**
        * Extends the standard visit command to wait for the page to load
        *
        * @returns {typeof visitAndCheck}
@@ -73,11 +85,31 @@ function cleanupUser({ email }: { email?: string } = {}) {
   cy.clearCookie("__session");
 }
 
+function cleanupPerson({ id }: { id?: string } = {}) {
+  if (id) {
+    deletePerson(id);
+  } else {
+    cy.get("@person").then((person) => {
+      const id = (person as { id?: string }).id;
+      if (id) {
+        deletePerson(id);
+      }
+    });
+  }
+  cy.clearCookie("__session");
+}
+
 function deleteUserByEmail(email: string) {
   cy.exec(
     `npx ts-node --require tsconfig-paths/register ./cypress/support/delete-user.ts "${email}"`
   );
   cy.clearCookie("__session");
+}
+
+function deletePerson(id: string) {
+  cy.exec(
+    `npx ts-node --require tsconfig-paths/register ./cypress/support/delete-person.ts "${id}"`
+  );
 }
 
 // We're waiting a second because of this issue happen randomly
@@ -93,3 +125,4 @@ function visitAndCheck(url: string, waitTime: number = 1000) {
 Cypress.Commands.add("login", login);
 Cypress.Commands.add("cleanupUser", cleanupUser);
 Cypress.Commands.add("visitAndCheck", visitAndCheck);
+Cypress.Commands.add("cleanupPerson", cleanupPerson);

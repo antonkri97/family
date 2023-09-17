@@ -124,6 +124,7 @@ export default function NewPersonPage() {
     >
       <Input
         label="Имя: "
+        dataTestId="first-name"
         name="firstName"
         refProp={firstNameRef}
         invalid={actionData?.errors?.firstName ? true : undefined}
@@ -136,6 +137,7 @@ export default function NewPersonPage() {
       <Input
         label="Фамилия: "
         name="secondName"
+        dataTestId="second-name"
         refProp={secondNameRef}
         invalid={actionData?.errors?.secondName ? true : undefined}
         ariaErrorMessage={
@@ -147,6 +149,7 @@ export default function NewPersonPage() {
       <Input
         label="Отчество: "
         name="thirdName"
+        dataTestId="third-name"
         refProp={thirdNameRef}
         invalid={actionData?.errors?.thirdName ? true : undefined}
         ariaErrorMessage={
@@ -158,6 +161,7 @@ export default function NewPersonPage() {
       <Input
         label="Год рождения: "
         name="birthday"
+        dataTestId="birthday"
         refProp={thirdNameRef}
         invalid={actionData?.errors?.birthday ? true : undefined}
         ariaErrorMessage={
@@ -168,6 +172,7 @@ export default function NewPersonPage() {
 
       <Select
         label="Пол: "
+        dataTestId="gender"
         selectRef={genderRef}
         onChange={(e) => onGenderChange(e)}
         name="gender"
@@ -180,7 +185,7 @@ export default function NewPersonPage() {
         ))}
       </Select>
 
-      <Select label="Супруг(а): " name="spouse">
+      <Select label="Супруг(а): " name="spouse" dataTestId="spouse">
         {spouses.map((spouse) => (
           <option key={spouse.id} value={spouse.id}>
             {`${spouse.secondName} ${spouse.firstName} ${spouse.thirdName}`}
@@ -188,7 +193,7 @@ export default function NewPersonPage() {
         ))}
       </Select>
 
-      <Select label="Мать" name="mother">
+      <Select label="Мать" name="mother" dataTestId="mother">
         {mothers.map((mother) => (
           <option key={mother.id} value={mother.id}>
             {`${mother.secondName} ${mother.firstName} ${mother.thirdName}`}
@@ -196,7 +201,7 @@ export default function NewPersonPage() {
         ))}
       </Select>
 
-      <Select label="Отец" name="father">
+      <Select label="Отец" name="father" dataTestId="father">
         {fathers.map((father) => (
           <option key={father.id} value={father.id}>
             {`${father.secondName} ${father.firstName} ${father.thirdName}`}
@@ -204,10 +209,10 @@ export default function NewPersonPage() {
         ))}
       </Select>
 
-      <Textarea label="Биография: " name="bio" />
+      <Textarea label="Биография: " name="bio" dataTestId="bio" />
 
       <div className="text-right">
-        <Button>Добавить</Button>
+        <Button dataTestId="create">Добавить</Button>
       </div>
     </Form>
   );

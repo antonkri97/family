@@ -10,6 +10,7 @@ export const Select = ({
   errorMessage,
   children,
   addEmpty = true,
+  dataTestId,
 }: PropsWithChildren<{
   selectRef?: React.RefObject<HTMLSelectElement>;
   onChange?: (event: React.ChangeEvent<HTMLSelectElement>) => void;
@@ -19,6 +20,7 @@ export const Select = ({
   errorMessage?: string | undefined | null;
   label: string;
   addEmpty?: boolean;
+  dataTestId?: string | null;
 }>) => (
   <div>
     <div>
@@ -29,6 +31,7 @@ export const Select = ({
           ref={selectRef}
           onChange={onChange}
           name={name}
+          data-test-id={dataTestId}
           className="flex-1 rounded-md border-2 border-blue-500 px-3 text-lg leading-loose"
           aria-invalid={invalid}
           aria-errormessage={ariaErrorMessage}
