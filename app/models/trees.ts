@@ -14,7 +14,7 @@ export interface TreeNode {
 export function buildTrees(
   persons: FullPersonValidated[],
   entities: Record<string, FullPersonValidated>
-): TreeNode[] | null {
+): TreeNode[] {
   if (!persons.length) {
     return [];
   }
