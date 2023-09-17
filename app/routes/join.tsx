@@ -9,7 +9,7 @@ import { safeRedirect, validateEmail } from "~/utils";
 
 export const loader = async ({ request }: LoaderArgs) => {
   const userId = await getUserId(request);
-  if (userId) return redirect("/");
+  if (userId) return redirect("/main");
   return json({});
 };
 
@@ -17,7 +17,7 @@ export const action = async ({ request }: ActionArgs) => {
   const formData = await request.formData();
   const email = formData.get("email");
   const password = formData.get("password");
-  const redirectTo = safeRedirect(formData.get("redirectTo"), "/");
+  const redirectTo = safeRedirect(formData.get("redirectTo"), "/main");
 
   if (!validateEmail(email)) {
     return json(
@@ -89,12 +89,13 @@ export default function Join() {
               htmlFor="email"
               className="block text-sm font-medium text-gray-700"
             >
-              Email address
+              Email
             </label>
             <div className="mt-1">
               <input
                 ref={emailRef}
                 id="email"
+                data-test-id="email"
                 required
                 autoFocus={true}
                 name="email"
@@ -117,11 +118,12 @@ export default function Join() {
               htmlFor="password"
               className="block text-sm font-medium text-gray-700"
             >
-              Password
+              Пароль
             </label>
             <div className="mt-1">
               <input
                 id="password"
+                data-test-id="password"
                 ref={passwordRef}
                 name="password"
                 type="password"
@@ -141,13 +143,14 @@ export default function Join() {
           <input type="hidden" name="redirectTo" value={redirectTo} />
           <button
             type="submit"
+            data-test-id="register"
             className="w-full rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 focus:bg-blue-400"
           >
-            Create Account
+            Создать аккаунт
           </button>
           <div className="flex items-center justify-center">
             <div className="text-center text-sm text-gray-500">
-              Already have an account?{" "}
+              Уже есть аккаунт?{" "}
               <Link
                 className="text-blue-500 underline"
                 to={{
@@ -155,7 +158,7 @@ export default function Join() {
                   search: searchParams.toString(),
                 }}
               >
-                Log in
+                Войти
               </Link>
             </div>
           </div>

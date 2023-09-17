@@ -89,7 +89,7 @@ export default function LoginPage() {
             <div className="mt-1">
               <input
                 ref={emailRef}
-                defaultValue={"anton.kri97@gmail.com"}
+                data-test-id="email"
                 id="email"
                 required
                 autoFocus={true}
@@ -118,7 +118,7 @@ export default function LoginPage() {
             <div className="mt-1">
               <input
                 id="password"
-                defaultValue={"12345678"}
+                data-test-id="password"
                 ref={passwordRef}
                 name="password"
                 type="password"
@@ -138,6 +138,7 @@ export default function LoginPage() {
           <input type="hidden" name="redirectTo" value={redirectTo} />
           <button
             type="submit"
+            data-test-id="login"
             className="w-full rounded bg-yellow-500 px-4 py-2 text-white hover:bg-yellow-600 focus:bg-yellow-400"
           >
             Войти
