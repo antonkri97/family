@@ -90,3 +90,7 @@ export function formatName(
 export function isMale(person: Pick<Person, "gender">): boolean {
   return person.gender === Gender.MALE;
 }
+
+export function formatGender(person: Pick<Person, "gender">): string {
+  return person.gender === "MALE" ? "Мужской" : "Женский";
+}
