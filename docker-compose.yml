@@ -40,6 +40,7 @@ services:
       - prod
       - local
       - db
+      - db-only
     container_name: postgres
     image: postgres
     environment:

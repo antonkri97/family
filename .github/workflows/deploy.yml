@@ -103,7 +103,7 @@ jobs:
         run: export SESSION_SECRET="super-duper-s3cret"
 
       - name: 🛠 Setup Database
-        run: docker compose --profile db up
+        run: docker compose --profile db-only up -d
 
       - name: ⚙️ Build
         run: npm run build
