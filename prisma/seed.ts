@@ -1,6 +1,6 @@
-import { Gender, PrismaClient } from "@prisma/client";
+import type { Gender } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
-import { isMale } from "~/utils";
 
 const prisma = new PrismaClient();
 
@@ -57,7 +57,7 @@ async function seed() {
     spouseId: firstSon.id,
   });
 
-  const sonOfFirstSon = await generatePerson({
+  await generatePerson({
     firstName: "Григорий",
     secondName: "Кривохижин",
     thirdName: "Антонович",
