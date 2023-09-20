@@ -39,7 +39,11 @@ export default function PersonPage() {
           <Link to="person/list" className="block p-4 text-xl text-blue-500">
             Люди
           </Link>
-          <Link to="person/new" className="block p-4 text-xl text-blue-500">
+          <Link
+            to="person/new"
+            className="block p-4 text-xl text-blue-500"
+            data-test-id="add-person"
+          >
             Добавить человека
           </Link>
           <Link to="trees" className="block p-4 text-xl text-blue-500">

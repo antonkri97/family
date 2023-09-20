@@ -40,6 +40,18 @@ declare global {
       cleanupPerson: typeof cleanupPerson;
 
       /**
+       * Deletes persons
+       *
+       * @returns {typeof cleanupPerson}
+       * @memberof Chainable
+       * @example
+       *    cy.cleanupPerson()
+       * @example
+       *    cy.cleanupPerson({ ids: ['12345678'] })
+       */
+      cleanupPersons: typeof cleanupPersons;
+
+      /**
        * Extends the standard visit command to wait for the page to load
        *
        * @returns {typeof visitAndCheck}
@@ -99,6 +111,26 @@ function cleanupPerson({ id }: { id?: string } = {}) {
   cy.clearCookie("__session");
 }
 
+function cleanupPersons({ ids }: { ids?: string[] } = {}) {
+  if (ids) {
+    ids.forEach((id) => {
+      if (typeof id === "string") {
+        deletePerson(id);
+      }
+    });
+  } else {
+    cy.get("@personIds").then((data) => {
+      const ids = (data as { ids?: string[] }).ids;
+      if (ids) {
+        ids.forEach((id) => {
+          deletePerson(id);
+        });
+      }
+    });
+  }
+  cy.clearCookie("__session");
+}
+
 function deleteUserByEmail(email: string) {
   cy.exec(
     `npx ts-node --require tsconfig-paths/register ./cypress/support/delete-user.ts "${email}"`
@@ -126,3 +158,4 @@ Cypress.Commands.add("login", login);
 Cypress.Commands.add("cleanupUser", cleanupUser);
 Cypress.Commands.add("visitAndCheck", visitAndCheck);
 Cypress.Commands.add("cleanupPerson", cleanupPerson);
+Cypress.Commands.add("cleanupPersons", cleanupPersons);

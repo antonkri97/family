@@ -36,26 +36,40 @@ export const action = async ({ params, request }: ActionArgs) => {
 export default function PersonDetailsPage() {
   const { person } = useLoaderData<typeof loader>();
 
-  const info: { label: string; value: string }[] = [
+  const info: {
+    label: string;
+    value: string;
+    dataTestId: string;
+    dataTestValue?: string | null;
+  }[] = [
     {
       label: "Имя",
       value: formatName(person),
+      dataTestId: "name",
     },
     {
       label: "Пол",
       value: isMale(person) ? "Мужской" : "Женский",
+      dataTestId: "gender",
+      dataTestValue: person.gender,
     },
     {
       label: "Отец",
       value: formatName(person.father),
+      dataTestId: "father",
+      dataTestValue: person.fatherId,
     },
     {
       label: "Мать",
       value: formatName(person.mother),
+      dataTestId: "mother",
+      dataTestValue: person.motherId,
     },
     {
       label: isMale(person) ? "Жена" : "Муж",
       value: formatName(isMale(person) ? person.wife : person.husband),
+      dataTestId: "spouse",
+      dataTestValue: person.spouseId,
     },
   ];
 
@@ -71,7 +85,13 @@ export default function PersonDetailsPage() {
             key={row.label}
             className="rounded-md border-2 border-blue-500 pl-1"
           >
-            <span className="font-bold">{row.label}</span>: {row.value}
+            <span className="font-bold">{row.label}</span>:{" "}
+            <span
+              data-test-id={row.dataTestId}
+              data-test-value={row.dataTestValue}
+            >
+              {row.value}
+            </span>
           </li>
         ))}
       </ul>
