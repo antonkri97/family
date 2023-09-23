@@ -1,7 +1,7 @@
 import { faker } from "@faker-js/faker";
 import { Gender } from "@prisma/client";
 
-describe("person", () => {
+describe("create person", () => {
   it("should allow to create new person", () => {
     cy.login();
 
