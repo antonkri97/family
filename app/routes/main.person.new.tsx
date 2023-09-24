@@ -1,5 +1,5 @@
 import { Gender } from "@prisma/client";
-import type { ActionArgs, LoaderArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import { useEffect, useRef, useState } from "react";
@@ -10,7 +10,7 @@ import { createPerson, getPersonListItems } from "~/models/person.server";
 import { Button, Input, Select, Textarea } from "~/modules/shared";
 import { requireUserId } from "~/session.server";
 
-export const loader = async ({ params, request }: LoaderArgs) => {
+export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   const userId = await requireUserId(request);
   const genders = getGenders();
   const persons = await getPersonListItems({ id: userId });
@@ -20,7 +20,7 @@ export const loader = async ({ params, request }: LoaderArgs) => {
   return json({ persons, genders, mothers, fathers });
 };
 
-export const action = async ({ request }: ActionArgs) => {
+export const action = async ({ request }: LoaderFunctionArgs) => {
   const userId = await requireUserId(request);
 
   const Person = object({
