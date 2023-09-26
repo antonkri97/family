@@ -42,7 +42,7 @@ async function createPerson(email: string) {
           },
         },
       });
-      console.log(person.id);
+      console.log(JSON.stringify(person));
     }
   } catch (error) {
     if (

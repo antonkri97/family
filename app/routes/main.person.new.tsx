@@ -2,22 +2,18 @@ import { Gender } from "@prisma/client";
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import { Form, useActionData, useLoaderData } from "@remix-run/react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { nullable, object, string, z } from "zod";
-import { getGenders } from "~/models/gender.server";
 
-import { createPerson, getPersonListItems } from "~/models/person.server";
+import { createPerson } from "~/models/person.server";
 import { Button, Input, Select, Textarea } from "~/modules/shared";
+import { useSpouses } from "~/modules/shared/hooks";
+import { entitiesLoader } from "~/modules/shared/loaders";
 import { requireUserId } from "~/session.server";
 
-export const loader = async ({ params, request }: LoaderFunctionArgs) => {
-  const userId = await requireUserId(request);
-  const genders = getGenders();
-  const persons = await getPersonListItems({ id: userId });
-  const mothers = persons.filter(({ gender }) => gender === Gender.FEMALE);
-  const fathers = persons.filter(({ gender }) => gender === Gender.MALE);
-
-  return json({ persons, genders, mothers, fathers });
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  const { fathers, genders, mothers, persons } = await entitiesLoader(request);
+  return json({ fathers, genders, mothers, persons });
 };
 
 export const action = async ({ request }: LoaderFunctionArgs) => {
@@ -89,16 +85,7 @@ export default function NewPersonPage() {
   const birthDayRef = useRef<HTMLInputElement>(null);
   const genderRef = useRef<HTMLSelectElement>(null);
 
-  const [selectedGender, setSelectedGender] = useState(genders[0].value);
-
-  const [spouses, setSpouses] = useState(
-    persons.filter(({ gender }) => selectedGender !== gender)
-  );
-
-  const onGenderChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSpouses(persons.filter(({ gender }) => gender !== e.target.value));
-    setSelectedGender(e.target.value as Gender);
-  };
+  const [spouses, onGenderChange] = useSpouses(genders[0].value, persons);
 
   useEffect(() => {
     if (actionData?.errors?.firstName) {
@@ -174,7 +161,7 @@ export default function NewPersonPage() {
         label="Пол: "
         dataTestId="gender"
         selectRef={genderRef}
-        onChange={(e) => onGenderChange(e)}
+        onChange={(e) => onGenderChange(e.target.value as Gender)}
         name="gender"
         addEmpty={false}
       >

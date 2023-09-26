@@ -2,6 +2,11 @@ import { type Person, type User } from "@prisma/client";
 
 import { prisma } from "~/db.server";
 import { isMale } from "~/utils";
+import { simplePersonSchema } from "~/validators/person";
+import type {
+  SimplePersonValidated,
+  UpdatePersonValidated,
+} from "~/validators/person";
 
 type CreatePerson = Pick<
   Person,
@@ -31,13 +36,21 @@ export async function getPerson({
 export async function getPersonListItems({ id }: Pick<User, "id">) {
   const persons = await prisma.person.findMany({
     where: { userId: id },
-    include: { wife: true, husband: true, father: true },
   });
 
-  return persons.map((person) => ({
-    ...person,
-    spouse: person.wife?.firstName ?? person.husband?.firstName,
-  }));
+  const validated: SimplePersonValidated[] = [];
+
+  for (const person of persons) {
+    const parse = simplePersonSchema.safeParse(person);
+
+    if (parse.success) {
+      validated.push(parse.data);
+    } else {
+      console.error(`can't validate this person`, person, parse.error);
+    }
+  }
+
+  return validated;
 }
 
 export type GetPersonsListItems = Awaited<
@@ -93,6 +106,18 @@ export async function createPerson(
   }
 
   return newPerson;
+}
+
+export async function updatePerson(
+  personId: string,
+  person: UpdatePersonValidated
+) {
+  return prisma.person.update({
+    data: person,
+    where: {
+      id: personId,
+    },
+  });
 }
 
 export function deletePerson({

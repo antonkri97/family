@@ -25,9 +25,6 @@ function generatePerson(
     firstName: "firstName",
     secondName: "secondName",
     thirdName: "thirdName",
-    fatherId: null,
-    motherId: null,
-    spouseId: null,
     ...data,
   };
 }
@@ -88,8 +85,6 @@ const son = generatePerson({
 const secondGenWife = generatePerson({
   id: "4",
   spouseId: son.id,
-  fatherId: null,
-  motherId: null,
   gender: "FEMALE",
 });
 const thirdGenFather = generatePerson({
@@ -100,8 +95,6 @@ const thirdGenFather = generatePerson({
 });
 const thirdGenWife = generatePerson({
   id: "6",
-  fatherId: null,
-  motherId: null,
   gender: "MALE",
 });
 const forthGenSon = generatePerson({

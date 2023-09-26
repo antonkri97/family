@@ -1,4 +1,4 @@
-import type { ActionArgs, LoaderArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
 import {
   Form,
@@ -12,7 +12,7 @@ import { deletePerson, getPerson } from "~/models/person.server";
 import { requireUserId } from "~/session.server";
 import { formatName, isMale } from "~/utils";
 
-export const loader = async ({ params, request }: LoaderArgs) => {
+export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   const userId = await requireUserId(request);
   invariant(params.personId, "personId not found");
 
@@ -23,7 +23,7 @@ export const loader = async ({ params, request }: LoaderArgs) => {
   return json({ person });
 };
 
-export const action = async ({ params, request }: ActionArgs) => {
+export const action = async ({ params, request }: LoaderFunctionArgs) => {
   const userId = await requireUserId(request);
   invariant(params.personId, "personId not found");
 

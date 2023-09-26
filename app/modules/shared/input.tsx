@@ -6,14 +6,16 @@ export const Input = ({
   ariaErrorMessage,
   errorMessage,
   dataTestId,
+  defaultValue,
 }: {
-  refProp: React.RefObject<HTMLInputElement>;
+  refProp?: React.RefObject<HTMLInputElement>;
   name: string;
   label: string;
-  invalid: true | undefined;
-  ariaErrorMessage: string | undefined;
-  errorMessage: string | undefined | null;
-  dataTestId: string | null;
+  invalid?: true | undefined;
+  ariaErrorMessage?: string | undefined;
+  errorMessage?: string | undefined | null;
+  dataTestId?: string | null;
+  defaultValue?: string | null;
 }) => (
   <div>
     <label className="flex w-full flex-col gap-1">
@@ -22,6 +24,7 @@ export const Input = ({
         data-test-id={dataTestId}
         ref={refProp}
         name={name}
+        defaultValue={defaultValue ?? ""}
         className="flex-1 rounded-md border-2 border-blue-500 px-3 text-lg leading-loose"
         aria-invalid={invalid}
         aria-errormessage={ariaErrorMessage}

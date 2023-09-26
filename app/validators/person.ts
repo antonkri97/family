@@ -1,17 +1,17 @@
 import { Gender } from "@prisma/client";
-import { nullable, object, string, z } from "zod";
+import { nullable, object, optional, string, z } from "zod";
 
-export const personSchema = object({
+export const simplePersonSchema = object({
   id: string(),
   firstName: string(),
   secondName: nullable(string()),
   thirdName: nullable(string()),
   birthday: nullable(string()),
   gender: z.enum([Gender.MALE, Gender.FEMALE]),
-  spouseId: nullable(string()),
-  motherId: nullable(string()),
-  fatherId: nullable(string()),
-  bio: nullable(string()),
+  spouseId: optional(string()).or(nullable(string())),
+  motherId: optional(string()).or(nullable(string())),
+  fatherId: optional(string()).or(nullable(string())),
+  bio: optional(string()).or(nullable(string())),
 });
 
 export function getSchemas(
@@ -22,42 +22,45 @@ export function getSchemas(
     mother: boolean;
   } = { father: false, husband: false, mother: false, wife: false }
 ) {
-  let schema = personSchema;
+  let schema = simplePersonSchema;
 
   if (config.wife) {
     schema = schema.extend({
-      wife: personSchema,
+      wife: simplePersonSchema,
     });
   }
 
   if (config.husband) {
     schema = schema.extend({
-      husband: personSchema,
+      husband: simplePersonSchema,
     });
   }
 
   if (config.father) {
     schema = schema.extend({
-      father: personSchema,
+      father: simplePersonSchema,
     });
   }
 
   if (config.father) {
     schema = schema.extend({
-      mother: personSchema,
+      mother: simplePersonSchema,
     });
   }
 
   return schema;
 }
 
-export type SimplePersonValidated = z.infer<typeof personSchema>;
+export type SimplePersonValidated = z.infer<typeof simplePersonSchema>;
 
-const fullSchema = getSchemas({
+export const fullPersonSchema = getSchemas({
   father: true,
   husband: true,
   mother: true,
   wife: true,
 });
 
-export type FullPersonValidated = z.infer<typeof fullSchema>;
+export type FullPersonValidated = z.infer<typeof fullPersonSchema>;
+
+export const updatePersonSchema = simplePersonSchema.omit({ id: true });
+export type UpdatePersonValidated = z.infer<typeof updatePersonSchema>;
