@@ -80,10 +80,5 @@ describe("update person", () => {
     );
 
     cy.get("[data-test-id='update']").click();
-
-    // cy.get("@personId").then((data) => {
-    //   const id = (data as { id?: string }).id;
-    //   cy.url().should("contain", `main/person/${id}`);
-    // });
   });
 });
