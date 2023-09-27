@@ -12,7 +12,7 @@ export interface TreeNode {
 }
 
 export function buildTrees(
-  persons: FullPersonValidated[],
+  persons: SimplePersonValidated[],
   entities: Record<string, FullPersonValidated>
 ): TreeNode[] {
   if (!persons.length) {
@@ -23,7 +23,7 @@ export function buildTrees(
   const trees: TreeNode[] = [];
 
   persons.forEach((person) => {
-    if (person.fatherId === null && person.gender === "MALE") {
+    if (!person.fatherId && person.gender === "MALE") {
       trees.push(buildTree(person, children, entities));
     }
   });

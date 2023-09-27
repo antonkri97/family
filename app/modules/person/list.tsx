@@ -4,10 +4,10 @@ import { Table } from "../shared";
 export const PersonList = ({
   person,
 }: {
-  person: (Pick<
+  person: Pick<
     Person,
     "id" | "firstName" | "secondName" | "thirdName" | "birthday"
-  > & { spouse?: string })[];
+  >[];
 }) => (
   <Table
     colDef={[
@@ -15,7 +15,6 @@ export const PersonList = ({
       { field: "secondName", header: "Фамилия" },
       { field: "thirdName", header: "Отчество" },
       { field: "birthday", header: "Дата рождения" },
-      { field: "spouse", header: "Супруг(а)" },
     ]}
     data={person}
   />

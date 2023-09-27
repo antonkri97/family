@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-namespace */
 import { faker } from "@faker-js/faker";
 
 declare global {
@@ -50,6 +51,18 @@ declare global {
        *    cy.cleanupPerson({ ids: ['12345678'] })
        */
       cleanupPersons: typeof cleanupPersons;
+
+      /**
+       * Create person
+       *
+       * @returns {typeof createPerson}
+       * @memberof Chainable
+       * @example
+       *    cy.createPerson()
+       * @example
+       *    cy.createPerson({ email: address@example.com })
+       */
+      createPerson: typeof createPerson;
 
       /**
        * Extends the standard visit command to wait for the page to load
@@ -144,18 +157,46 @@ function deletePerson(id: string) {
   );
 }
 
+function createPerson(email?: string) {
+  if (email) {
+    return execCreatePerson(email)
+      .then(({ stdout }) => ({ person: JSON.parse(stdout) }))
+      .as("person");
+  } else {
+    cy.get("user").then((user) => {
+      const email = (user as { email?: string }).email;
+
+      if (email) {
+        return execCreatePerson(email)
+          .then(({ stdout }) => ({ person: JSON.parse(stdout) }))
+          .as("person");
+      }
+      return null;
+    });
+  }
+}
+
+function execCreatePerson(email: string) {
+  return cy.exec(
+    `npx ts-node --require tsconfig-paths/register ./cypress/support/create-person.ts "${email}"`
+  );
+}
+
 // We're waiting a second because of this issue happen randomly
 // https://github.com/cypress-io/cypress/issues/7306
 // Also added custom types to avoid getting detached
 // https://github.com/cypress-io/cypress/issues/7306#issuecomment-1152752612
 // ===========================================================
-function visitAndCheck(url: string, waitTime: number = 1000) {
+function visitAndCheck(url: string, waitTime = 1000) {
   cy.visit(url);
   cy.location("pathname").should("contain", url).wait(waitTime);
 }
 
-Cypress.Commands.add("login", login);
-Cypress.Commands.add("cleanupUser", cleanupUser);
-Cypress.Commands.add("visitAndCheck", visitAndCheck);
-Cypress.Commands.add("cleanupPerson", cleanupPerson);
-Cypress.Commands.add("cleanupPersons", cleanupPersons);
+export const main = () => {
+  Cypress.Commands.add("login", login);
+  Cypress.Commands.add("cleanupUser", cleanupUser);
+  Cypress.Commands.add("visitAndCheck", visitAndCheck);
+  Cypress.Commands.add("cleanupPerson", cleanupPerson);
+  Cypress.Commands.add("cleanupPersons", cleanupPersons);
+  Cypress.Commands.add("createPerson", createPerson);
+};
