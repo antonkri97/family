@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 import { faker } from "@faker-js/faker";
+import type { CreatedPerson, User } from "./aliases";
 
 declare global {
   namespace Cypress {
@@ -84,7 +85,7 @@ function login({
 }: {
   email?: string;
 } = {}) {
-  cy.then(() => ({ email })).as("user");
+  cy.then<User>(() => ({ email })).as("user");
   cy.exec(
     `npx ts-node --require tsconfig-paths/register ./cypress/support/create-user.ts "${email}"`
   ).then(({ stdout }) => {
@@ -93,15 +94,15 @@ function login({
       .trim();
     cy.setCookie("__session", cookieValue);
   });
-  return cy.get("@user");
+  return cy.get<User>("@user");
 }
 
 function cleanupUser({ email }: { email?: string } = {}) {
   if (email) {
     deleteUserByEmail(email);
   } else {
-    cy.get("@user").then((user) => {
-      const email = (user as { email?: string }).email;
+    cy.get<User>("@user").then((user) => {
+      const email = user.email;
       if (email) {
         deleteUserByEmail(email);
       }
@@ -160,15 +161,13 @@ function deletePerson(id: string) {
 function createPerson(email?: string) {
   if (email) {
     return execCreatePerson(email)
-      .then(({ stdout }) => ({ person: JSON.parse(stdout) }))
+      .then<CreatedPerson>(({ stdout }) => ({ person: JSON.parse(stdout) }))
       .as("person");
   } else {
-    cy.get("user").then((user) => {
-      const email = (user as { email?: string }).email;
-
+    cy.get<User>("user").then(({ email }) => {
       if (email) {
         return execCreatePerson(email)
-          .then(({ stdout }) => ({ person: JSON.parse(stdout) }))
+          .then<CreatedPerson>(({ stdout }) => ({ person: JSON.parse(stdout) }))
           .as("person");
       }
       return null;
