@@ -1,4 +1,5 @@
 import { faker } from "@faker-js/faker";
+import type { User } from "support/aliases";
 
 describe("auth", () => {
   afterEach(() => {
@@ -11,7 +12,7 @@ describe("auth", () => {
       password: faker.internet.password(),
     };
 
-    cy.then(() => ({ email: loginForm.email })).as("user");
+    cy.then<User>(() => ({ email: loginForm.email })).as("user");
 
     cy.visitAndCheck("/");
 

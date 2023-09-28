@@ -1,5 +1,7 @@
 import { faker } from "@faker-js/faker";
 import { Gender } from "@prisma/client";
+import type { PersonId } from "support/aliases";
+import { isString } from "support/utils";
 
 describe("create person", () => {
   it("should allow to create new person", () => {
@@ -32,7 +34,7 @@ describe("create person", () => {
     cy.get("[data-test-id='create']").click();
 
     cy.url()
-      .then((url) => ({ id: url.split("/").at(-1) }))
+      .then<PersonId>((url) => ({ id: url.split("/").at(-1) }))
       .as("person");
 
     cy.cleanupPerson();
@@ -66,7 +68,7 @@ describe("create person", () => {
 
     cy.url()
       .should("not.contain", "main/person/new")
-      .then((url) => ({ id: url.split("/").at(-1) }))
+      .then<PersonId>((url) => ({ id: url.split("/").at(-1) }))
       .as("fatherId");
 
     cy.get("[data-test-id='add-person']").click();
@@ -93,8 +95,7 @@ describe("create person", () => {
     cy.get("[data-test-id='birthday']").type(mother.birthday.toDateString());
     cy.get("[data-test-id='gender']").select(mother.gender, { force: true });
 
-    cy.get("@fatherId").then((data) => {
-      const id = (data as { id?: string }).id;
+    cy.get<PersonId>("@fatherId").then(({ id }) => {
       cy.get("[data-test-id='spouse']").select(id ?? "");
     });
 
@@ -102,7 +103,7 @@ describe("create person", () => {
 
     cy.url()
       .should("not.contain", "main/person/new")
-      .then((url) => ({ id: url.split("/").at(-1) }))
+      .then<PersonId>((url) => ({ id: url.split("/").at(-1) }))
       .as("motherId");
 
     cy.get("[data-test-id='add-person']").click();
@@ -129,11 +130,8 @@ describe("create person", () => {
     cy.get("[data-test-id='birthday']").type(son.birthday.toDateString());
     cy.get("[data-test-id='gender']").select(son.gender);
 
-    cy.get("@fatherId").then((fatherData) =>
-      cy.get("@motherId").then((motherData) => {
-        const fatherId = (fatherData as { id?: string }).id;
-        const motherId = (motherData as { id?: string }).id;
-
+    cy.get<PersonId>("@fatherId").then(({ id: fatherId }) =>
+      cy.get<PersonId>("@motherId").then(({ id: motherId }) => {
         cy.get("[data-test-id='father']").select(fatherId ?? "");
         cy.get("[data-test-id='mother']").select(motherId ?? "");
       })
@@ -143,7 +141,7 @@ describe("create person", () => {
 
     cy.url()
       .should("not.contain", "main/person/new")
-      .then((url) => ({ id: url.split("/").at(-1) }))
+      .then<PersonId>((url) => ({ id: url.split("/").at(-1) }))
       .as("sonId");
 
     cy.get("[data-test-id='name']").should(
@@ -155,13 +153,9 @@ describe("create person", () => {
       .invoke("attr", "data-test-value")
       .should("contain", son.gender);
 
-    cy.get("@fatherId").then((fatherData) =>
-      cy.get("@motherId").then((motherData) =>
-        cy.get("@sonId").then((sonData) => {
-          const fatherId = (fatherData as { id?: string }).id as string;
-          const motherId = (motherData as { id?: string }).id as string;
-          const sonId = (sonData as { id?: string }).id as string;
-
+    cy.get<PersonId>("@fatherId").then(({ id: fatherId }) =>
+      cy.get<PersonId>("@motherId").then(({ id: motherId }) =>
+        cy.get<PersonId>("@sonId").then(({ id: sonId }) => {
           cy.get("[data-test-id='mother']")
             .invoke("attr", "data-test-value")
             .should("contain", motherId);
@@ -170,7 +164,9 @@ describe("create person", () => {
             .invoke("attr", "data-test-value")
             .should("contain", fatherId);
 
-          cy.cleanupPersons({ ids: [fatherId, motherId, sonId] });
+          cy.cleanupPersons({
+            ids: [fatherId, motherId, sonId].filter(isString),
+          });
         })
       )
     );

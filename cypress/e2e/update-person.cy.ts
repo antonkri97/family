@@ -1,15 +1,13 @@
 import { faker } from "@faker-js/faker";
-import type { Person } from "@prisma/client";
+import type { CreatedPerson } from "support/aliases";
 
 describe("update person", () => {
   beforeEach(() => {
-    cy.login().then((user) => {
-      const email = (user as { email?: string }).email;
+    cy.login().then(({ email }) => {
       cy.createPerson(email);
     });
-    cy.get("@person").then((data: any) => {
-      const person = data.person as Person;
-      cy.visitAndCheck(`/main/person/edit/${person.id}`);
+    cy.get<CreatedPerson>("@person").then(({ person }) => {
+      cy.visitAndCheck(`/main/person/edit/${person?.id}`);
     });
   });
 
@@ -21,39 +19,40 @@ describe("update person", () => {
       birthday: faker.date.birthdate(),
     };
 
-    cy.get("@person").then((data: any) => {
-      const person = data.person as Person;
-
+    cy.get<CreatedPerson>("@person").then(({ person }) => {
       cy.get("[data-test-id='first-name']").should(
         "have.value",
-        person.firstName
+        person?.firstName
       );
       cy.get("[data-test-id='second-name']").should(
         "have.value",
-        person.secondName
+        person?.secondName
       );
       cy.get("[data-test-id='third-name']").should(
         "have.value",
-        person.thirdName
+        person?.thirdName
       );
-      cy.get("[data-test-id='birthday']").should("have.value", person.birthday);
+      cy.get("[data-test-id='birthday']").should(
+        "have.value",
+        person?.birthday
+      );
 
       cy.get("[data-test-id='mother']").should(
         "have.value",
-        person.motherId ?? ""
+        person?.motherId ?? ""
       );
 
       cy.get("[data-test-id='father']").should(
         "have.value",
-        person.fatherId ?? ""
+        person?.fatherId ?? ""
       );
 
       cy.get("[data-test-id='spouse']").should(
         "have.value",
-        person.spouseId ?? ""
+        person?.spouseId ?? ""
       );
 
-      cy.get("[data-test-id='bio']").should("have.value", person.bio ?? "");
+      cy.get("[data-test-id='bio']").should("have.value", person?.bio ?? "");
     });
 
     cy.get("[data-test-id='first-name']").type(
