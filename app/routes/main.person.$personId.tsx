@@ -1,5 +1,6 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
+import type { MetaFunction } from "@remix-run/react";
 import {
   Form,
   isRouteErrorResponse,
@@ -31,6 +32,8 @@ export const action = async ({ params, request }: LoaderFunctionArgs) => {
 
   return redirect("/main/person/new");
 };
+
+export const meta: MetaFunction = () => [{ title: "Edit person" }];
 
 export default function PersonDetailsPage() {
   const { person } = useLoaderData<typeof loader>();
@@ -68,7 +71,7 @@ export default function PersonDetailsPage() {
       label: isMale(person) ? "Жена" : "Муж",
       value: formatName(isMale(person) ? person.wife : person.husband),
       dataTestId: "spouse",
-      dataTestValue: person.spouseId,
+      dataTestValue: (isMale(person) ? person.wife : person.husband)?.id,
     },
   ];
 
