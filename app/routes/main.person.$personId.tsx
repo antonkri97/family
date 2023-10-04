@@ -3,6 +3,7 @@ import { json, redirect } from "@remix-run/node";
 import type { MetaFunction } from "@remix-run/react";
 import {
   Form,
+  Link,
   isRouteErrorResponse,
   useLoaderData,
   useRouteError,
@@ -99,13 +100,24 @@ export default function PersonDetailsPage() {
       </ul>
 
       <hr className="my-4" />
-      <Form method="post">
+      <Form method="post" className="flex gap-5">
         <button
           type="submit"
           className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 focus:bg-blue-400"
         >
           Удалить
         </button>
+        <Link
+          className="text-blue-500 underline"
+          to={`/main/person/edit/${person.id}`}
+        >
+          <button
+            type="button"
+            className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 focus:bg-blue-400"
+          >
+            Редактировать
+          </button>
+        </Link>
       </Form>
     </div>
   );
