@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 import { faker } from "@faker-js/faker";
 import type { CreatedPerson, User } from "./aliases";
+import type * as CreatePerson from "./create-person";
 
 declare global {
   namespace Cypress {
@@ -81,7 +82,7 @@ declare global {
 }
 
 function login({
-  email = faker.internet.email(undefined, undefined, "example.com"),
+  email = faker.internet.email({ provider: "example.com" }),
 }: {
   email?: string;
 } = {}) {
@@ -158,26 +159,30 @@ function deletePerson(id: string) {
   );
 }
 
-function createPerson(email?: string) {
-  if (email) {
-    return execCreatePerson(email)
-      .then<CreatedPerson>(({ stdout }) => ({ person: JSON.parse(stdout) }))
-      .as("person");
-  } else {
-    cy.get<User>("user").then(({ email }) => {
-      if (email) {
-        return execCreatePerson(email)
-          .then<CreatedPerson>(({ stdout }) => ({ person: JSON.parse(stdout) }))
-          .as("person");
-      }
-      return null;
+function createPerson(
+  initialValue: Parameters<(typeof CreatePerson)["createPerson"]>[0]
+) {
+  return cy.get<User>("@user").then(({ email }) => {
+    return execCreatePerson({
+      ...initialValue,
+      email,
+      gender: initialValue?.gender ?? "MALE",
+    }).then<CreatedPerson>(({ stdout }) => {
+      return { person: JSON.parse(stdout) };
     });
-  }
+  });
 }
 
-function execCreatePerson(email: string) {
+function execCreatePerson(
+  initialValue: Parameters<(typeof CreatePerson)["createPerson"]>[0]
+) {
+  function escapeJSON(string: string) {
+    return string.replace(/[\n"\\&\r\t\b\f]/g, "\\$&");
+  }
   return cy.exec(
-    `npx ts-node --require tsconfig-paths/register ./cypress/support/create-person.ts "${email}"`
+    `npx ts-node --require tsconfig-paths/register ./cypress/support/create-person.ts "${escapeJSON(
+      JSON.stringify(initialValue)
+    )}"`
   );
 }
 

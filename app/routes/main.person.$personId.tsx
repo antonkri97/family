@@ -1,7 +1,9 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json, redirect } from "@remix-run/node";
+import type { MetaFunction } from "@remix-run/react";
 import {
   Form,
+  Link,
   isRouteErrorResponse,
   useLoaderData,
   useRouteError,
@@ -31,6 +33,8 @@ export const action = async ({ params, request }: LoaderFunctionArgs) => {
 
   return redirect("/main/person/new");
 };
+
+export const meta: MetaFunction = () => [{ title: "Edit person" }];
 
 export default function PersonDetailsPage() {
   const { person } = useLoaderData<typeof loader>();
@@ -68,7 +72,7 @@ export default function PersonDetailsPage() {
       label: isMale(person) ? "Жена" : "Муж",
       value: formatName(isMale(person) ? person.wife : person.husband),
       dataTestId: "spouse",
-      dataTestValue: person.spouseId,
+      dataTestValue: (isMale(person) ? person.wife : person.husband)?.id,
     },
   ];
 
@@ -96,13 +100,24 @@ export default function PersonDetailsPage() {
       </ul>
 
       <hr className="my-4" />
-      <Form method="post">
+      <Form method="post" className="flex gap-5">
         <button
           type="submit"
           className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 focus:bg-blue-400"
         >
           Удалить
         </button>
+        <Link
+          className="text-blue-500 underline"
+          to={`/main/person/edit/${person.id}`}
+        >
+          <button
+            type="button"
+            className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 focus:bg-blue-400"
+          >
+            Редактировать
+          </button>
+        </Link>
       </Form>
     </div>
   );

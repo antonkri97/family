@@ -112,12 +112,37 @@ export async function updatePerson(
   personId: string,
   person: UpdatePersonValidated
 ) {
-  return prisma.person.update({
-    data: person,
+  const updatedPerson = await prisma.person.update({
+    data: {
+      firstName: person.firstName,
+      secondName: person.secondName,
+      thirdName: person.thirdName,
+      gender: person.gender,
+      ...(person.fatherId && { father: { connect: { id: person.fatherId } } }),
+      ...(person.motherId && { mother: { connect: { id: person.motherId } } }),
+      ...(person.spouseId && {
+        [isMale(person) ? "wife" : "husband"]: {
+          connect: {
+            id: person.spouseId,
+          },
+        },
+      }),
+    },
     where: {
       id: personId,
     },
   });
+
+  if (person.spouseId && updatedPerson) {
+    prisma.person.update({
+      where: { id: person.spouseId },
+      data: {
+        [isMale(person) ? "husband" : "wife"]: {
+          connect: { id: updatedPerson.id },
+        },
+      },
+    });
+  }
 }
 
 export function deletePerson({

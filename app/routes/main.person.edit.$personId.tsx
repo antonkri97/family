@@ -8,6 +8,7 @@ import { Select, Textarea, Button, Input } from "~/modules/shared";
 import { useSpouses } from "~/modules/shared/hooks";
 import { entitiesLoader } from "~/modules/shared/loaders";
 import { getUserId } from "~/session.server";
+import { isMale } from "~/utils";
 import { updatePersonSchema } from "~/validators/person";
 
 export const loader = async ({ params, request }: LoaderFunctionArgs) => {
@@ -47,6 +48,7 @@ export default function EditPerson() {
 
   const [spouses, onGenderChange] = useSpouses(person.gender, persons);
 
+  const spouseId = person[isMale(person) ? "wife" : "husband"]?.id;
   return (
     <Form
       method="post"
@@ -101,9 +103,9 @@ export default function EditPerson() {
 
       <Select
         label="Супруг(а): "
-        name="spouse"
+        name="spouseId"
         dataTestId="spouse"
-        defaultValue={person.spouseId?.toString()}
+        defaultValue={spouseId}
       >
         {spouses.map((spouse) => (
           <option key={spouse.id} value={spouse.id}>
@@ -114,7 +116,7 @@ export default function EditPerson() {
 
       <Select
         label="Мать"
-        name="mother"
+        name="motherId"
         dataTestId="mother"
         defaultValue={person.motherId?.toString()}
       >
@@ -127,7 +129,7 @@ export default function EditPerson() {
 
       <Select
         label="Отец"
-        name="father"
+        name="fatherId"
         dataTestId="father"
         defaultValue={person.fatherId?.toString()}
       >
