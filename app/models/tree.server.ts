@@ -1,16 +1,12 @@
 import { getPersonListItems } from "./person.server";
-import { getSchemas } from "~/validators/person";
+import { simplePersonSchema } from "~/validators/person";
 import { buildTrees } from "./trees";
 
 export async function getTrees(userId: string) {
   const personsRaw = await getPersonListItems({ id: userId });
-  const schema = getSchemas({
-    father: true,
-    husband: true,
-    mother: true,
-    wife: true,
-  });
-  const validated = personsRaw.map((person) => schema.parse(person));
+  const validated = personsRaw.map((person) =>
+    simplePersonSchema.parse(person)
+  );
 
   const entities = Object.fromEntries(
     validated.map((person) => [person.id, person])

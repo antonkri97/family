@@ -1,9 +1,11 @@
+import { randomUUID } from "crypto";
 import type {
   FullPersonValidated,
   SimplePersonValidated,
 } from "~/validators/person";
 
 export interface TreeNode {
+  uuid: string;
   person: SimplePersonValidated;
   spouse: SimplePersonValidated | null;
   father: SimplePersonValidated | null;
@@ -24,7 +26,7 @@ export function buildTrees(
 
   persons.forEach((person) => {
     if (!person.fatherId && person.gender === "MALE") {
-      trees.push(buildTree(person, children, entities));
+      trees.push(buildTree(person, children, entities, randomUUID()));
     }
   });
 
@@ -50,16 +52,18 @@ export function getChildren(
 export function buildTree(
   person: FullPersonValidated,
   children: Record<string, FullPersonValidated[]>,
-  entities: Record<string, FullPersonValidated>
+  entities: Record<string, FullPersonValidated>,
+  uuid: string
 ): TreeNode {
   const _children = children[person.id] ?? [];
   return {
-    person: person,
+    uuid,
+    person,
     spouse: person.spouseId ? entities[person.spouseId] : null,
     father: person.fatherId ? entities[person.fatherId] : null,
     mother: person.motherId ? entities[person.motherId] : null,
     children: _children.map(({ id }) =>
-      buildTree(entities[id], children, entities)
+      buildTree(entities[id], children, entities, uuid)
     ),
   };
 }
