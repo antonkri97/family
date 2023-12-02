@@ -94,6 +94,7 @@ export default function LoginPage() {
                 id="email"
                 required
                 autoFocus={true}
+                defaultValue={"anton.kri97@gmail.com"}
                 name="email"
                 type="email"
                 autoComplete="email"
@@ -121,6 +122,7 @@ export default function LoginPage() {
                 id="password"
                 data-test-id="password"
                 ref={passwordRef}
+                defaultValue={"12345678"}
                 name="password"
                 type="password"
                 autoComplete="current-password"
