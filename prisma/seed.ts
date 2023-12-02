@@ -31,12 +31,14 @@ async function seed() {
     firstName: "Владимир",
     secondName: "Кривохижин",
     thirdName: "Владимирович",
+    birthday: "23.02.1960",
     gender: "MALE",
   });
   const firstMother = await generatePerson({
     firstName: "Марина",
     secondName: "Иванова",
     thirdName: "Петровна",
+    birthday: "15.11.1959",
     gender: "FEMALE",
     spouseId: firstFather.id,
   });
@@ -44,6 +46,7 @@ async function seed() {
     firstName: "Антон",
     secondName: "Кривохижин",
     thirdName: "Владимирович",
+    birthday: "10.01.1997",
     fatherId: firstFather.id,
     motherId: firstMother.id,
     gender: "MALE",
@@ -53,6 +56,7 @@ async function seed() {
     firstName: "Екатерина",
     secondName: "Олина",
     thirdName: "Владимировна",
+    birthday: "04.12.1997",
     gender: "FEMALE",
     spouseId: firstSon.id,
   });
@@ -61,6 +65,7 @@ async function seed() {
     firstName: "Григорий",
     secondName: "Кривохижин",
     thirdName: "Антонович",
+    birthday: "11.10.2023",
     gender: "MALE",
     fatherId: firstSon.id,
     motherId: firstSonWife.id,
@@ -87,12 +92,14 @@ function generatePersonForUser(userId: string) {
     fatherId?: string;
     motherId?: string;
     spouseId?: string;
+    birthday?: string;
   }) => {
     const {
       firstName,
       secondName,
       thirdName,
       gender,
+      birthday,
       fatherId,
       motherId,
       spouseId,
@@ -103,43 +110,43 @@ function generatePersonForUser(userId: string) {
         firstName,
         secondName,
         thirdName,
+        birthday,
         gender,
         user: {
           connect: { id: userId },
         },
-        ...(fatherId
-          ? {
-              father: {
-                connect: { id: fatherId },
-              },
-            }
-          : {}),
-        ...(motherId
-          ? {
-              mother: {
-                connect: { id: motherId },
-              },
-            }
-          : {}),
-        ...(spouseId
-          ? {
-              [gender === "MALE" ? "wife" : "husband"]: {
-                connect: { id: spouseId },
-              },
-            }
-          : {}),
+        ...(spouseId && {
+          spouse: {
+            connect: {
+              id: spouseId,
+            },
+          },
+        }),
+        ...(fatherId && {
+          father: {
+            connect: { id: fatherId },
+          },
+        }),
+        ...(motherId && {
+          mother: {
+            connect: { id: motherId },
+          },
+        }),
       },
     });
 
     if (spouseId) {
-      prisma.person.update({
+      const updated = await prisma.person.update({
         where: { id: spouseId },
         data: {
-          [person.gender === "MALE" ? "husband" : "wife"]: {
-            connect: { id: person.spouseId },
+          spouse: {
+            connect: {
+              id: person.id,
+            },
           },
         },
       });
+      console.log("UPDATED", updated);
     }
 
     return person;

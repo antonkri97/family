@@ -29,13 +29,13 @@ export async function getPerson({
 }) {
   return prisma.person.findFirst({
     where: { id, userId },
-    include: { wife: true, husband: true, father: true, mother: true },
   });
 }
 
 export async function getPersonListItems({ id }: Pick<User, "id">) {
   const persons = await prisma.person.findMany({
     where: { userId: id },
+    include: { spouse: true, spouses: true },
   });
 
   const validated: SimplePersonValidated[] = [];
@@ -77,15 +77,6 @@ export async function createPerson(
       },
     },
   };
-
-  if (person.spouseId) {
-    const spouse = isMale(person) ? "wife" : "husband";
-    data[spouse] = {
-      connect: {
-        id: person.spouseId,
-      },
-    };
-  }
 
   if (person.motherId) {
     data.mother = { connect: { id: person.motherId } };

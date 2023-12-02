@@ -56,9 +56,9 @@ model Person {
   mother    Person? @relation("Mother", fields: [motherId], references: [id])
   motherRel Person? @relation("Mother")
 
-  spouseId String? @unique
-  husband  Person? @relation("Spouse", fields: [spouseId], references: [id])
-  wife     Person? @relation("Spouse")
+  spouse     Person?  @relation("Spouse", fields: [spouseId], references: [id])
+  spouseId   String?
+  spouses    Person[] @relation("Spouse")
 
   ex         Person[] @relation("Ex")
   exRelation Person[] @relation("Ex")

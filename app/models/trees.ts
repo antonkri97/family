@@ -54,7 +54,7 @@ export function buildTree(
 ): TreeNode {
   const _children = children[person.id] ?? [];
   return {
-    person: person,
+    person,
     spouse: person.spouseId ? entities[person.spouseId] : null,
     father: person.fatherId ? entities[person.fatherId] : null,
     mother: person.motherId ? entities[person.motherId] : null,
