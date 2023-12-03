@@ -20,8 +20,6 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 export default function Trees() {
   const { trees } = useLoaderData<typeof loader>();
 
-  console.log(trees);
-
   const containerStyle = {
     width: "100%", // Set width to 100% of parent container
     height: "100%", // Set height to 100% of parent container

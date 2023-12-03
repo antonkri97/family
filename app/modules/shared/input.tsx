@@ -1,13 +1,4 @@
-export const Input = ({
-  refProp,
-  name,
-  label,
-  invalid,
-  ariaErrorMessage,
-  errorMessage,
-  dataTestId,
-  defaultValue,
-}: {
+interface InputProps {
   refProp?: React.RefObject<HTMLInputElement>;
   name: string;
   label: string;
@@ -16,24 +7,41 @@ export const Input = ({
   errorMessage?: string | undefined | null;
   dataTestId?: string | null;
   defaultValue?: string | null;
-}) => (
-  <div>
-    <label className="flex w-full flex-col gap-1">
-      <span>{label}</span>
+  placeholder?: string;
+}
+
+export const Input: React.FC<InputProps> = ({
+  refProp,
+  name,
+  label,
+  invalid,
+  ariaErrorMessage,
+  errorMessage,
+  dataTestId,
+  defaultValue,
+  placeholder,
+}) => {
+  return (
+    <div className="mb-4">
+      <label className="mb-2 block text-sm font-semibold text-gray-600">
+        {label}
+      </label>
       <input
         data-test-id={dataTestId}
         ref={refProp}
         name={name}
         defaultValue={defaultValue ?? ""}
-        className="flex-1 rounded-md border-2 border-blue-500 px-3 text-lg leading-loose"
+        className="w-full rounded-md border p-2 focus:border-indigo-500 focus:outline-none"
+        type="text"
+        placeholder={placeholder}
         aria-invalid={invalid}
         aria-errormessage={ariaErrorMessage}
       />
-    </label>
-    {errorMessage ? (
-      <div className="pt-1 text-red-700" id="title-error">
-        {errorMessage}
-      </div>
-    ) : null}
-  </div>
-);
+      {errorMessage ? (
+        <div className="pt-1 text-red-700" id="title-error">
+          {errorMessage}
+        </div>
+      ) : null}
+    </div>
+  );
+};
