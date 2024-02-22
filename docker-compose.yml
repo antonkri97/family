@@ -42,7 +42,7 @@ services:
       - db
       - db-only
     container_name: postgres
-    image: postgres
+    image: postgres:15.6
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
