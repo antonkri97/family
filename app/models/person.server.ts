@@ -1,38 +1,23 @@
 import { type Person, type User } from "@prisma/client";
 
 import { prisma } from "~/db.server";
-import { isMale } from "~/utils";
+import type { PersonFormValues } from "~/validators/create-person";
 import { simplePersonSchema } from "~/validators/person";
-import type {
-  SimplePersonValidated,
-  UpdatePersonValidated,
-} from "~/validators/person";
-
-type CreatePerson = Pick<
-  Person,
-  | "firstName"
-  | "secondName"
-  | "thirdName"
-  | "birthday"
-  | "gender"
-  | "bio"
-  | "spouseId"
-  | "motherId"
-  | "fatherId"
->;
+import type { SimplePersonValidated } from "~/validators/person";
 
 export async function getPerson({
   id,
   userId,
 }: Pick<Person, "id"> & {
   userId: User["id"];
-}) {
-  return prisma.person.findFirst({
+}): Promise<SimplePersonValidated> {
+  const person = await prisma.person.findFirst({
     where: { id, userId },
   });
+  return simplePersonSchema.parse(person);
 }
 
-export async function getPersonListItems({ id }: Pick<User, "id">) {
+export async function getPersonList({ id }: Pick<User, "id">) {
   const persons = await prisma.person.findMany({
     where: { userId: id },
     include: { spouse: true, spouses: true },
@@ -53,87 +38,84 @@ export async function getPersonListItems({ id }: Pick<User, "id">) {
   return validated;
 }
 
-export type GetPersonsListItems = Awaited<
-  ReturnType<typeof getPersonListItems>
->;
+export type GetPersonsListItems = Awaited<ReturnType<typeof getPersonList>>;
 
-export async function createPerson(
-  person: CreatePerson & {
-    userId: User["id"];
-  }
-) {
-  let data: Parameters<typeof prisma.person.create>[0]["data"];
-
-  data = {
-    firstName: person.firstName,
-    secondName: person.secondName,
-    thirdName: person.thirdName,
-    birthday: person.birthday,
-    bio: person.bio,
-    gender: person.gender,
-    user: {
-      connect: {
-        id: person.userId,
-      },
+export async function createPerson(value: PersonFormValues, userId: string) {
+  const { relations } = value;
+  const person = await prisma.person.create({
+    data: {
+      firstName: value.firstName,
+      secondName: value.secondName,
+      thirdName: value.thirdName,
+      avatar: value.avatar,
+      gender: value.gender,
+      user: { connect: { id: userId } },
+      birthday: value.birthday,
+      ...(relations.spouse && {
+        spouse: { connect: { id: relations.spouse } },
+      }),
+      ...(relations.mother && {
+        mother: { connect: { id: relations.mother } },
+      }),
+      ...(relations.father && {
+        father: { connect: { id: relations.father } },
+      }),
     },
-  };
+  });
 
-  if (person.motherId) {
-    data.mother = { connect: { id: person.motherId } };
-  }
-
-  if (person.fatherId) {
-    data.father = { connect: { id: person.fatherId } };
-  }
-
-  const newPerson = await prisma.person.create({ data });
-
-  if (person.spouseId && newPerson) {
-    const spouse = isMale(person) ? "wife" : "husband";
-    prisma.person.update({
-      where: { id: person.spouseId },
-      data: { [spouse]: { connect: { id: newPerson.id } } },
+  if (value.relations.spouse) {
+    await prisma.person.update({
+      where: { id: value.relations.spouse },
+      data: { spouse: { connect: { id: person.id } } },
     });
   }
 
-  return newPerson;
+  if (value.relations.mother) {
+    await prisma.person.update({
+      where: { id: value.relations.mother },
+      data: { mother: { connect: { id: person.id } } },
+    });
+  }
+
+  if (value.relations.father) {
+    await prisma.person.update({
+      where: { id: value.relations.father },
+      data: { father: { connect: { id: person.id } } },
+    });
+  }
+
+  return person;
 }
 
 export async function updatePerson(
-  personId: string,
-  person: UpdatePersonValidated
-) {
+  id: string,
+  person: PersonFormValues
+): Promise<SimplePersonValidated> {
+  const { father, mother, spouse } = person.relations;
   const updatedPerson = await prisma.person.update({
     data: {
       firstName: person.firstName,
       secondName: person.secondName,
       thirdName: person.thirdName,
       gender: person.gender,
-      ...(person.fatherId && { father: { connect: { id: person.fatherId } } }),
-      ...(person.motherId && { mother: { connect: { id: person.motherId } } }),
-      ...(person.spouseId && {
-        [isMale(person) ? "wife" : "husband"]: {
-          connect: {
-            id: person.spouseId,
-          },
-        },
-      }),
+      ...(person.avatar && { avatar: person.avatar }),
+      ...(father && { father: { connect: { id: father } } }),
+      ...(mother && { mother: { connect: { id: mother } } }),
+      ...(spouse && { spouse: { connect: { id: spouse } } }),
     },
     where: {
-      id: personId,
+      id,
     },
   });
 
-  if (person.spouseId && updatedPerson) {
+  if (spouse && updatedPerson) {
     prisma.person.update({
-      where: { id: person.spouseId },
-      data: {
-        [isMale(person) ? "husband" : "wife"]: {
-          connect: { id: updatedPerson.id },
-        },
-      },
+      where: { id: spouse },
+      data: { spouse: { connect: { id: updatedPerson.id } } },
     });
   }
+
+  return simplePersonSchema.parse(updatedPerson);
 }
 
 export function deletePerson({

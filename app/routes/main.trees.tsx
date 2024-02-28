@@ -74,9 +74,9 @@ const FamilyConnection = ({
       {children && (
         <div className="relative mt-4 flex justify-center space-y-4">
           {React.Children.map(children, (child, index) => (
-            <div key={index} className="ml-2">
+            <div key={index}>
               {isFamilyTree(child) ? (
-                <div className="ml-2">{React.cloneElement(child)}</div>
+                <div>{React.cloneElement(child)}</div>
               ) : (
                 child
               )}
@@ -96,13 +96,20 @@ const PersonCard = ({
 }>) => {
   const { birthday } = person;
   return (
-    <div className="h-54 w-54 m-2 min-w-0 flex-shrink-0 overflow-hidden rounded-lg bg-gradient-to-r from-slate-800 to-slate-500 text-white shadow-lg">
+    <div className="m-2 w-64 min-w-0 flex-shrink-0 overflow-hidden rounded-lg bg-gradient-to-r from-slate-800 to-slate-500 text-white shadow-lg">
       <div className="flex h-full flex-col justify-between">
         <div className="p-2">
           <div className="mb-2 flex items-center justify-center">
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white">
-              <FaUser size={24} color="#4A5568" />{" "}
-              {/* Adjust size and color as needed */}
+              {person.avatar ? (
+                <img
+                  src={`/${person.avatar}`}
+                  alt="Avatar"
+                  className="h-12 w-12 rounded-full object-cover"
+                />
+              ) : (
+                <FaUser size={24} color="#4A5568" />
+              )}
             </div>
           </div>
           <div className="mb-1 line-clamp-2 overflow-hidden overflow-ellipsis text-xl font-bold">
@@ -110,12 +117,15 @@ const PersonCard = ({
           </div>
           <div className="flex space-x-2">
             <div>
-              <p className="text-sm">Birthday:</p>
-              <p className="text-sm font-semibold">{birthday}</p>
-            </div>
-            <div>
-              <p className="mb-1 text-sm">Gender:</p>
-              <p className="text-sm font-semibold">{formatGender(person)}</p>
+              <p className="text-sm">
+                Дата рождения:{" "}
+                <span className="text-sm font-semibold">
+                  {/* {new Intl.DateTimeFormat("ru-Ru").format(
+                    new Date(birthday ?? "")
+                  )} */}
+                  {birthday}
+                </span>
+              </p>
             </div>
           </div>
         </div>

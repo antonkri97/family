@@ -12,6 +12,7 @@ export const Select = ({
   addEmpty = true,
   dataTestId,
   defaultValue,
+  disabled,
 }: PropsWithChildren<{
   selectRef?: React.RefObject<HTMLSelectElement>;
   onChange?: (event: React.ChangeEvent<HTMLSelectElement>) => void;
@@ -22,7 +23,8 @@ export const Select = ({
   label: string;
   addEmpty?: boolean;
   dataTestId?: string | null;
-  defaultValue?: string;
+  defaultValue?: string | null;
+  disabled?: boolean;
 }>) => (
   <div className="mb-4">
     <div>
@@ -31,6 +33,7 @@ export const Select = ({
       </label>
 
       <select
+        disabled={disabled}
         ref={selectRef}
         onChange={onChange}
         defaultValue={defaultValue}

@@ -3,13 +3,13 @@ import { json } from "@remix-run/node";
 import { Form, Link, Outlet, useLoaderData } from "@remix-run/react";
 import NavLinks from "~/components/NavLinks";
 
-import { getPersonListItems } from "~/models/person.server";
+import { getPersonList } from "~/models/person.server";
 import { requireUserId } from "~/session.server";
 import { useUser } from "~/utils";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const userId = await requireUserId(request);
-  const person = await getPersonListItems({ id: userId });
+  const person = await getPersonList({ id: userId });
   return json({ person });
 };
 
