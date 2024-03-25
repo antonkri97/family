@@ -4,6 +4,7 @@ import { prisma } from "~/db.server";
 import type { PersonFormValues } from "~/validators/create-person";
 import { simplePersonSchema } from "~/validators/person";
 import type { SimplePersonValidated } from "~/validators/person";
+import { formatDate } from "../utils";
 
 export async function getPerson({
   id,
@@ -50,7 +51,7 @@ export async function createPerson(value: PersonFormValues, userId: string) {
       avatar: value.avatar,
       gender: value.gender,
       user: { connect: { id: userId } },
-      birthday: value.birthday,
+      birthday: formatDate(value.birthday),
       ...(relations.spouse && {
         spouse: { connect: { id: relations.spouse } },
       }),
@@ -92,6 +93,7 @@ export async function updatePerson(
   person: PersonFormValues
 ): Promise<SimplePersonValidated> {
   const { father, mother, spouse } = person.relations;
+  console.log(person.birthday);
   const updatedPerson = await prisma.person.update({
     data: {
       firstName: person.firstName,
@@ -102,6 +104,7 @@ export async function updatePerson(
       ...(father && { father: { connect: { id: father } } }),
       ...(mother && { mother: { connect: { id: mother } } }),
       ...(spouse && { spouse: { connect: { id: spouse } } }),
+      birthday: formatDate(person.birthday),
     },
     where: {
       id,

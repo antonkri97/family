@@ -8,8 +8,8 @@ import {
   Select,
   Button,
   Input,
+  Radio,
 } from "~/modules/shared";
-import { Autocomplete } from "~/modules/shared/Autocomplete";
 import { useSpouses } from "~/modules/shared/hooks";
 import type { EntityLoaderReturnType } from "~/modules/shared/loaders";
 import type { SimplePersonValidated } from "~/validators/person";
@@ -22,7 +22,6 @@ type PersonPageProps = {
 
 export const PersonPage: React.FC<PersonPageProps> = ({ payload }) => {
   const { fathers, genders, mothers, persons, person } = payload;
-  console.log(person);
   const [spouses, onGenderChange] = useSpouses(
     person?.gender ?? genders[0].value,
     persons
@@ -75,24 +74,18 @@ export const PersonPage: React.FC<PersonPageProps> = ({ payload }) => {
           dataTestId="birthday"
         />
         {/* Gender select control */}
-        <Select
-          defaultValue={person?.gender}
-          label="Пол: "
+
+        <Radio
+          checked={person?.gender}
           dataTestId="gender"
           onChange={(e) => {
             const value = e.target.value as Gender;
             onGenderChange(value);
             setShowRelationBlock(!!value);
           }}
+          options={genders}
           name="gender"
-          addEmpty={false}
-        >
-          {genders.map((gender) => (
-            <option key={gender.value} value={gender.value}>
-              {gender.label}
-            </option>
-          ))}
-        </Select>
+        />
 
         <div className="grid place-content-center">
           <Button type="submit" variant="primary" label="Добавить" />
