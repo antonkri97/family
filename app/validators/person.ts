@@ -1,17 +1,27 @@
 import { Gender } from "@prisma/client";
-import { nullable, object, optional, string, z } from "zod";
+import { z } from "zod";
 
-export const simplePersonSchema = object({
-  id: string(),
-  firstName: string(),
-  secondName: nullable(string()),
-  thirdName: nullable(string()),
-  birthday: nullable(string()),
+export const simplePersonSchema = z.object({
+  id: z.string(),
+
+  firstName: z.string(),
+  secondName: z.string().nullable(),
+  thirdName: z.string().nullable(),
+
+  birthday: z.string().nullable(),
+
   gender: z.enum([Gender.MALE, Gender.FEMALE]),
-  spouseId: optional(string()).or(nullable(string())),
-  motherId: optional(string()).or(nullable(string())),
-  fatherId: optional(string()).or(nullable(string())),
-  bio: optional(string()).or(nullable(string())),
+
+  bio: z.string().nullable(),
+  avatar: z.string().nullable(),
+
+  fatherId: z.string().nullable(),
+
+  motherId: z.string().nullable(),
+
+  spouseId: z.string().nullable(),
+
+  userId: z.string(),
 });
 
 export function getSchemas(

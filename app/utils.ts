@@ -95,3 +95,7 @@ export function isMale(person: Pick<Person, "gender">): boolean {
 export function formatGender(person: Pick<Person, "gender">): string {
   return person.gender === "MALE" ? "Мужской" : "Женский";
 }
+
+export function formatDate(date: string): string {
+  return date.replace(/(\d{4})-(\d{2})-(\d{2})/g, `$3.$2.$1`);
+}

@@ -10,15 +10,15 @@ export const Textarea = ({
   defaultValue?: string;
 }) => (
   <div>
-    <label className="flex w-full flex-col gap-1">
-      <span>{label}</span>
-      <textarea
-        defaultValue={defaultValue}
-        data-test-id={dataTestId}
-        name={name}
-        rows={8}
-        className="w-full flex-1 rounded-md border-2 border-blue-500 px-3 py-2 text-lg leading-6"
-      />
+    <label className="mb-2 block text-sm font-semibold text-gray-600">
+      {label}
     </label>
+    <textarea
+      defaultValue={defaultValue}
+      data-test-id={dataTestId}
+      name={name}
+      rows={8}
+      className="w-full rounded-md border p-2 focus:border-indigo-500 focus:outline-none"
+    />
   </div>
 );

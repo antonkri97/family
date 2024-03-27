@@ -31,14 +31,16 @@ async function seed() {
     firstName: "Владимир",
     secondName: "Кривохижин",
     thirdName: "Владимирович",
-    birthday: "23.02.1960",
+    birthday: "2023-01-01",
+    avatar: "test.jpg",
     gender: "MALE",
   });
   const firstMother = await generatePerson({
     firstName: "Марина",
     secondName: "Иванова",
     thirdName: "Петровна",
-    birthday: "15.11.1959",
+    birthday: "2023-01-01",
+    avatar: "test.jpg",
     gender: "FEMALE",
     spouseId: firstFather.id,
   });
@@ -46,7 +48,8 @@ async function seed() {
     firstName: "Антон",
     secondName: "Кривохижин",
     thirdName: "Владимирович",
-    birthday: "10.01.1997",
+    birthday: "2023-01-01",
+    avatar: "test.jpg",
     fatherId: firstFather.id,
     motherId: firstMother.id,
     gender: "MALE",
@@ -56,7 +59,8 @@ async function seed() {
     firstName: "Екатерина",
     secondName: "Олина",
     thirdName: "Владимировна",
-    birthday: "04.12.1997",
+    birthday: "2023-01-01",
+    avatar: "test.jpg",
     gender: "FEMALE",
     spouseId: firstSon.id,
   });
@@ -65,7 +69,8 @@ async function seed() {
     firstName: "Григорий",
     secondName: "Кривохижин",
     thirdName: "Антонович",
-    birthday: "11.10.2023",
+    birthday: "2023-01-01",
+    avatar: "test.jpg",
     gender: "MALE",
     fatherId: firstSon.id,
     motherId: firstSonWife.id,
@@ -93,6 +98,7 @@ function generatePersonForUser(userId: string) {
     motherId?: string;
     spouseId?: string;
     birthday?: string;
+    avatar?: string;
   }) => {
     const {
       firstName,
@@ -103,6 +109,7 @@ function generatePersonForUser(userId: string) {
       fatherId,
       motherId,
       spouseId,
+      avatar,
     } = data;
 
     const person = await prisma.person.create({
@@ -112,6 +119,7 @@ function generatePersonForUser(userId: string) {
         thirdName,
         birthday,
         gender,
+        avatar,
         user: {
           connect: { id: userId },
         },

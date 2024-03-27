@@ -3,6 +3,7 @@
   "private": true,
   "sideEffects": false,
   "scripts": {
+    "docker:db": "docker compose --profile db up",
     "build": "remix build",
     "dev": "cross-env NODE_ENV=development binode --require ./mocks -- @remix-run/dev:remix dev",
     "format": "prettier --write .",
@@ -25,7 +26,7 @@
     "/public/build"
   ],
   "dependencies": {
-    "@prisma/client": "^5.3.0",
+    "@prisma/client": "5.7.0",
     "@remix-run/css-bundle": "^2.0.1",
     "@remix-run/node": "^2.0.1",
     "@remix-run/react": "^2.0.1",

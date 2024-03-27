@@ -1,9 +1,9 @@
-import { getPersonListItems } from "./person.server";
+import { getPersonList } from "./person.server";
 import { simplePersonSchema } from "~/validators/person";
 import { buildTrees } from "./trees";
 
 export async function getTrees(userId: string) {
-  const personsRaw = await getPersonListItems({ id: userId });
+  const personsRaw = await getPersonList({ id: userId });
   const validated = personsRaw.map((person) =>
     simplePersonSchema.parse(person)
   );
