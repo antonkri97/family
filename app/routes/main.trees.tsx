@@ -6,7 +6,7 @@ import { type PropsWithChildren, type ReactNode } from "react";
 import { getTrees } from "~/models/tree.server";
 import type { TreeNode } from "~/models/trees";
 import { requireUserId } from "~/session.server";
-import { formatGender, formatName } from "~/utils";
+import { formatName } from "~/utils";
 import type { SimplePersonValidated } from "~/validators/person";
 import { FaUser } from "react-icons/fa";
 

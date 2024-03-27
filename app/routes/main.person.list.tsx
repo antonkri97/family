@@ -2,9 +2,8 @@ import type { LoaderFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import { Form, Link, useLoaderData } from "@remix-run/react";
 import { FaPen, FaTrash } from "react-icons/fa";
-import invariant from "tiny-invariant";
 import { deletePerson, getPersonList } from "~/models/person.server";
-import { Button, Table } from "~/modules/shared";
+import { Table } from "~/modules/shared";
 import { requireUserId } from "~/session.server";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
